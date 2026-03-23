@@ -1,0 +1,4 @@
+pymongo
+confluent-kafka
+google-generativeai
+python-dotenv

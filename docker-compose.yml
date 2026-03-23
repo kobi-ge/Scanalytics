@@ -6,7 +6,7 @@ networks:
 
 services:
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.8.3
     hostname: kafka
     container_name: kafka
     ports:
@@ -16,7 +16,7 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka:9092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:29092'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
       KAFKA_PROCESS_ROLES: 'broker,controller'
@@ -26,13 +26,13 @@ services:
     networks:
       - microservices-net
     healthcheck:
-      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      test: [ "CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   kafka-init:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.8.3
     container_name: kafka-init
     depends_on:
       kafka:
@@ -62,7 +62,7 @@ services:
         condition: service_healthy
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:7.0
     container_name: mongodb
     ports:
       - "27017:27017"
@@ -77,7 +77,7 @@ services:
       retries: 5
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.0
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -93,13 +93,13 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.10.2
+    image: docker.elastic.co/kibana/kibana:9.3.0
     container_name: kibana
     ports:
       - "5601:5601"
@@ -110,7 +110,6 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
-
   # producer-api:
   #   build: ./producer-api
   #   container_name: producer-api
