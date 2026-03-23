@@ -1,7 +1,17 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Dict, Any
+from typing import List
+
+class Item(BaseModel):
+    name: str
+    quantity: int
+    price: float
+    category: str
 
 class Receipt(BaseModel):
     model_config = ConfigDict(extra='allow')
+    payment_method: str
     receipt_id: str
-    items: List[Dict[str, Any]] = []
+    store: str
+    purchase_date: str
+    total_price: float
+    items: List[Item] = []
