@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useStore } from "../store/useStore";
 import { useNavigate } from "react-router";
 import { mockApi } from "../services/mockApi";
+import "../App.css"
 
 const CATEGORIES = [
   "Fashion & Apparel",

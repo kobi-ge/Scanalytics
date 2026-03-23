@@ -5,6 +5,9 @@ import Register from './pages/Register';
 import UploadReceipt from './pages/UploadReceipt';
 import ManualEntry from './pages/ManualEntry';
 import { Navigate, Route, Routes ,BrowserRouter} from 'react-router';
+import "./App.css"
+import NotFound from './pages/NotFound';
+import Statistics from './pages/Statistics';
 
 // קומפוננטה להגנה על עמודים שדורשים התחברות
 const PrivateRoute = ({ children }) => {
@@ -27,9 +30,9 @@ function App() {
             <Route path="/" element={<PrivateRoute><div>ברוך הבא, {user?.fullName}! סך הוצאותיך: ₪{user?.totalExpenses}</div></PrivateRoute>} />
             <Route path="/upload" element={<PrivateRoute><UploadReceipt /></PrivateRoute>} />
             <Route path="/manual" element={<PrivateRoute><ManualEntry /></PrivateRoute>} />
-            
+            <Route path="/statistics" element={<PrivateRoute><Statistics /></PrivateRoute>} />
             {/* עמוד 404 */}
-            {/* <Route path="*" element={<NotFound />} /> */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </div>

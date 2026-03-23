@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useStore } from '../store/useStore';
 import { mockApi } from '../services/mockApi';
+import "../App.css"
 
 export default function Login() {
   const [formData, setFormData] = useState({ username: '', password: '' });
