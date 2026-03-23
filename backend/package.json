@@ -1,0 +1,27 @@
+{
+  "name": "scanalytics-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.0.0",
+    "mongodb": "^7.1.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.20.0",
+    "react-router-dom": "^7.13.2",
+    "recharts": "^3.8.0",
+    "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
