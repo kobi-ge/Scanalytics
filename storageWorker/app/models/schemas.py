@@ -9,6 +9,7 @@ class Item(BaseModel):
 
 class Receipt(BaseModel):
     model_config = ConfigDict(extra='allow')
+    user_id: str
     payment_method: str
     receipt_id: str
     store: str

@@ -11,12 +11,17 @@ class StorageProcessor:
 
     async def process_message(self, data: dict):
         receipt_id = data.get("receipt_id")
-        if not receipt_id:
-            logger.warning("No receipt_id found in message. Skipping.")
+        user_id = data.get("user_id")
+        
+        if not receipt_id or not user_id:
+            logger.warning("No receipt_id or user_id found in message. Skipping.")
             return
 
+        # Generate new composite ID for MongoDB
+        mongo_id = f"{user_id}_{receipt_id}"
+
         # 1. Save full JSON to MongoDB (Collection: receipts)
-        await self.mongo_service.save_receipt(receipt_id, data)
+        await self.mongo_service.save_receipt(mongo_id, data)
 
         # 2. Flatten the items list and save to Elasticsearch
-        await self.es_service.save_receipt_items(receipt_id, data)
+        await self.es_service.save_receipt_items(user_id, receipt_id, data)
