@@ -1,21 +1,17 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        // הצבע הכחול העמוק מהרקע/לוגו שביקשת קודם
-        'brand-navy': '#0d2d50',
-        
-        // צבע הזהב היוקרתי מהלוגו
-        'brand-gold': '#c7ae75',
-        
-        // ניתן להוסיף וריאציה בהירה יותר של הזהב לשימוש ב-Hover
-        'brand-gold-light': '#d9c596',
+        navy: "#0f1924",
+        gold: "#c7ae75",
+        lightBlue: "#e2e8f0", // כחלחל עדין לרקעים
+      },
+      fontFamily: {
+        sans: ["Assistant", "sans-serif"], // Assistant הוא פונט מעולה לעברית מודרנית
+        heading: ["Montserrat", "sans-serif"], // פונט נוסף לכותרות אם תרצה
       },
     },
   },
   plugins: [],
-}
+};

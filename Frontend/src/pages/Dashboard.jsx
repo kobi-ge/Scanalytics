@@ -9,9 +9,9 @@ export default function Dashboard() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 bg-gradient-to-l from-blue-700 to-blue-500 p-8 rounded-2xl text-white shadow-lg">
+      <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 bg-gradient-to-l from-[#967f4a] to-[#c4ad7a] p-8 rounded-2xl text-white shadow-lg">
         <div>
-          <h1 className="text-3xl font-black">שלום, {user?.fullName}</h1>
+          <h1 className="text-3xl font-black">שלום {user?.fullName}!</h1>
           <p className="opacity-90 mt-1">ריכזנו עבורך את כל הרכישות והנתונים הפיננסיים שלך.</p>
         </div>
         <div className="text-left bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30">
@@ -46,7 +46,6 @@ export default function Dashboard() {
         {receipts.length === 0 ? (
           <div className="text-center p-20 bg-gray-50 border border-dashed rounded-2xl">
             <p className="text-gray-400">עדיין לא הועלו קבלות למערכת.</p>
-            <Link to="/upload" className="text-blue-600 font-bold mt-2 inline-block">העלה את הקבלה הראשונה שלך!</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

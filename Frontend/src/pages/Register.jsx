@@ -1,99 +1,88 @@
+// src/pages/Register.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
+import api from '../services/api';
 import { useStore } from '../store/useStore';
-import { mockApi } from '../services/mockApi';
-import "../App.css"
 
 export default function Register() {
-  const [formData, setFormData] = useState({ 
-    fullName: '', 
-    email: '', 
-    username: '', 
-    password: '' 
-  });
+  const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const setUser = useStore((state) => state.setUser);
+  const setUser = useStore(state => state.setUser);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
     
-    // וולידציה בסיסית לצד לקוח
-    if (formData.password.length < 6) {
-      setError('הסיסמה חייבת להכיל לפחות 6 תווים.');
-      return;
-    }
-
-    setLoading(true);
     try {
-      const userData = await mockApi.register(formData);
-      setUser(userData);
+      // הנתיב המדויק בשרת של השותף
+      const response = await api.post('/auth/register', formData);
+      
+      // שמירת הטוקן ועדכון המשתמש בסטייט
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user); // וודא שהשרת מחזיר אובייקט user ב-register
+      
+      alert("נרשמת בהצלחה! ברוך הבא.");
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || 'שגיאה בתהליך ההרשמה');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white p-8 border rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">יצירת חשבון חדש</h2>
-      {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm text-center">{error}</div>}
+    <div className="max-w-md mx-auto mt-20 bg-white p-8 border rounded-xl shadow-lg" dir="rtl">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">יצירת חשבון</h2>
+      {error && <p className="bg-red-50 text-red-500 p-3 rounded mb-4 text-center text-sm font-medium border border-red-200">{error}</p>}
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 text-sm font-medium">שם מלא</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-semibold text-gray-600 mr-1">שם מלא</label>
           <input 
             type="text" 
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
-            value={formData.fullName}
-            onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-            required
+            placeholder='ישראל ישראלי' 
+            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            onChange={e => setFormData({...formData, fullName: e.target.value})} 
+            required 
           />
         </div>
-        <div>
-          <label className="block mb-1 text-sm font-medium">אימייל</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-semibold text-gray-600 mr-1">אימייל</label>
           <input 
             type="email" 
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            required
+            placeholder='you@example.com' 
+            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            onChange={e => setFormData({...formData, email: e.target.value})} 
+            required 
           />
         </div>
-        <div>
-          <label className="block mb-1 text-sm font-medium">שם משתמש</label>
-          <input 
-            type="text" 
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
-            value={formData.username}
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-sm font-medium">סיסמה</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-semibold text-gray-600 mr-1">סיסמה</label>
           <input 
             type="password" 
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            required
+            placeholder='מינימום 6 תווים' 
+            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            onChange={e => setFormData({...formData, password: e.target.value})} 
+            required 
           />
         </div>
         <button 
           disabled={loading}
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50 font-bold transition"
+          className="w-full bg-green-600 text-white p-2.5 rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm"
         >
           {loading ? 'יוצר חשבון...' : 'הירשם עכשיו'}
         </button>
       </form>
-      <p className="mt-4 text-center text-sm text-gray-600">
-        כבר רשום? <Link to="/login" className="text-blue-600 hover:underline">היכנס כאן</Link>
-      </p>
+
+      <div className="mt-6 text-center text-sm text-gray-600 border-t pt-4">
+        כבר יש לך חשבון?{' '}
+        <Link to="/login" className="text-blue-600 font-bold hover:underline">
+          התחבר כאן
+        </Link>
+      </div>
     </div>
   );
 }
