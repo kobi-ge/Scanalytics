@@ -31,3 +31,11 @@ class SearchItemBase(BaseModel):
 
 class SearchResponse(BaseModel):
     items: List[SearchItemBase]
+
+class StoreMonthSpending(BaseModel):
+    store: str
+    total: float
+
+class SpendingByMonthStore(BaseModel):
+    month: str
+    stores: List[StoreMonthSpending]

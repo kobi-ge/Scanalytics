@@ -6,7 +6,8 @@ from app.schemas import (
     MonthlyTrend,
     StoreStats,
     PaymentMethodStats,
-    SearchResponse
+    SearchResponse,
+    SpendingByMonthStore
 )
 
 router = APIRouter()
@@ -29,6 +30,10 @@ async def top_stores(es_service: ElasticService = Depends(get_elastic_service)):
 @router.get("/stats/payment-methods", response_model=List[PaymentMethodStats])
 async def payment_methods(es_service: ElasticService = Depends(get_elastic_service)):
     return await es_service.get_payment_methods()
+
+@router.get("/stats/spending-by-month-and-store", response_model=List[SpendingByMonthStore])
+async def spending_by_month_and_store(es_service: ElasticService = Depends(get_elastic_service)):
+    return await es_service.get_spending_by_month_and_store()
 
 @router.get("/search/items", response_model=SearchResponse)
 async def search_items(
