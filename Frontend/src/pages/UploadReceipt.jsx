@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useStore } from "../store/useStore";
 import { useNavigate } from "react-router";
 import { mockApi } from "../services/mockApi";
-import "../App.css"
+import "../App.css";
 
 const CATEGORIES = [
   "Fashion & Apparel",
@@ -95,7 +95,7 @@ export default function UploadReceipt() {
           <button
             onClick={handleUpload}
             disabled={loading}
-            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
+            className="bg-[#0f1924] text-[#c7ae75] border-[#c7ae75] border-2 p-2 rounded transition-colors duration-300 hover:bg-[#c7ae75] hover:text-[#0f1924] disabled:opacity-50"
           >
             {loading ? "מפענח נתונים (AI)..." : "העלה ופענח"}
           </button>

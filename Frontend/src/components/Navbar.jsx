@@ -12,22 +12,22 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
+    <nav className="bg-[#0f1924] border-b shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-8">
-          <Link to="/" className="text-xl font-black text-blue-700 tracking-tighter"><img src="../public/logo with name.png" className="h-16 w-auto" alt="Logo" /></Link>
-          <div className="hidden md:flex gap-6 text-gray-600 font-medium">
-            <Link to="/" className="hover:text-blue-600">דשבורד</Link>
-            <Link to="/statistics" className="hover:text-blue-600">סטטיסטיקות</Link>
-            <Link to="/upload" className="hover:text-blue-600">סריקת קבלה</Link>
-            <Link to="/manual" className="hover:text-blue-600">הזנה ידנית</Link>
+          <Link to="/" className="tracking-tighter"><img src="../public/white.png" className="h-16 w-auto" alt="Logo" /></Link>
+          <div className="hidden md:flex gap-6 text-[#c7ae75] font-medium">
+            <Link to="/" className="hover:text-[#ffffff]">דשבורד</Link>
+            <Link to="/statistics" className="hover:text-[#ffffff]">סטטיסטיקות</Link>
+            <Link to="/upload" className="hover:text-[#ffffff]">סריקת קבלה</Link>
+            <Link to="/manual" className="hover:text-[#ffffff]">הזנה ידנית</Link>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
           <div className="text-left hidden sm:block">
-            <p className="text-xs text-gray-500 font-bold">שלום, {user?.fullName}</p>
-            <p className="text-xs text-green-600">₪{user?.totalExpenses?.toLocaleString()}</p>
+            <p className="text-xs text-[#967f4a] font-bold">שלום, {user?.fullName}</p>
+            <p className="text-xs text-green-400">₪{user?.totalExpenses?.toLocaleString()}</p>
           </div>
           <button 
             onClick={handleLogout}
