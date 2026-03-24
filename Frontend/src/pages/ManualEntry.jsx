@@ -58,7 +58,7 @@ export default function ManualEntry() {
     };
     try {
       // שליחה לשרת הפייתון (Port 8000)
-      await ingestionApi.post("/manual-entry", { payload });
+      await ingestionApi.post("/manual-entry", payload);
 
       addReceipt(payload);
 
@@ -153,9 +153,10 @@ export default function ManualEntry() {
             {receipt.items.map((item, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-12 gap-4 items-end bg-[#f8fafc] p-5 rounded-2xl border border-gray-100 hover:border-gold/30 transition-all group"
+                className="grid grid-cols-2 md:grid-cols-12 gap-4 items-end bg-[#f8fafc] p-5 rounded-2xl border border-gray-100 hover:border-gold/30 transition-all group"
               >
-                <div className="col-span-4 space-y-1">
+                {/* שם פריט - תופס שורה שלמה במובייל, 4 עמודות בדסקטופ */}
+                <div className="col-span-2 md:col-span-4 space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">
                     שם פריט
                   </label>
@@ -168,7 +169,9 @@ export default function ManualEntry() {
                     }
                   />
                 </div>
-                <div className="col-span-2 space-y-1">
+
+                {/* כמות - חצי שורה במובייל */}
+                <div className="col-span-1 md:col-span-2 space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase text-center block">
                     כמות
                   </label>
@@ -181,7 +184,9 @@ export default function ManualEntry() {
                     }
                   />
                 </div>
-                <div className="col-span-2 space-y-1">
+
+                {/* מחיר - חצי שורה במובייל */}
+                <div className="col-span-1 md:col-span-2 space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase text-center block">
                     מחיר
                   </label>
@@ -194,7 +199,9 @@ export default function ManualEntry() {
                     }
                   />
                 </div>
-                <div className="col-span-3 space-y-1">
+
+                {/* קטגוריה - כמעט שורה שלמה במובייל */}
+                <div className="col-span-1 md:col-span-3 space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">
                     קטגוריה
                   </label>
@@ -212,7 +219,9 @@ export default function ManualEntry() {
                     ))}
                   </select>
                 </div>
-                <div className="col-span-1 flex justify-center pb-2">
+
+                {/* כפתור מחיקה - מיושר לשמאל במובייל */}
+                <div className="col-span-1 md:col-span-1 flex justify-center pb-2">
                   <button
                     onClick={() =>
                       setReceipt({
@@ -220,7 +229,7 @@ export default function ManualEntry() {
                         items: receipt.items.filter((_, i) => i !== idx),
                       })
                     }
-                    className="text-red-300 hover:text-red-600 transition-colors"
+                    className="text-red-300 hover:text-red-600 transition-colors p-2"
                   >
                     <Trash2 size={20} />
                   </button>

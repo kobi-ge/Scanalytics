@@ -52,7 +52,6 @@ export default function App() {
         dir="rtl"
       >
         <div className="flex-1 flex flex-col min-w-0">
-          {/* נבבר עליון (Header) */}
           {user && <Navbar />}
 
           <main className="p-8 overflow-y-auto">
