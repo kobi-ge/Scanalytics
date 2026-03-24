@@ -7,7 +7,8 @@ from app.schemas import (
     StoreStats,
     PaymentMethodStats,
     SearchResponse,
-    SpendingByMonthStore
+    SpendingByMonthStore,
+    UserBenchmarkResponse
 )
 
 router = APIRouter()
@@ -63,3 +64,10 @@ async def search_items(
     es_service: ElasticService = Depends(get_elastic_service)
 ):
     return await es_service.search_items(user_id, query=q, category=category)
+
+@router.get("/stats/user-benchmark", response_model=UserBenchmarkResponse)
+async def user_benchmark(
+    user_id: str = Depends(get_user_id),
+    es_service: ElasticService = Depends(get_elastic_service)
+):
+    return await es_service.get_user_benchmark(user_id)

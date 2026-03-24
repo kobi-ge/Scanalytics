@@ -39,3 +39,14 @@ class StoreMonthSpending(BaseModel):
 class SpendingByMonthStore(BaseModel):
     month: str
     stores: List[StoreMonthSpending]
+
+class UserBenchmarkResponse(BaseModel):
+    user_avg_item_price: float
+    global_avg_item_price: float
+    diff_percent: float
+    status: str
+    percentile_rank: int
+    user_total_spending: Optional[float] = None
+    top_category: Optional[str] = None
+    user_top_category_avg: Optional[float] = None
+    global_top_category_avg: Optional[float] = None

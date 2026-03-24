@@ -230,3 +230,122 @@ class ElasticService:
         except Exception as e:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    async def get_user_benchmark(self, user_id: str):
+        query = {
+            "size": 0,
+            "aggs": {
+                "user_stats": {
+                    "filter": {
+                        "term": {"user_id.keyword": user_id}
+                    },
+                    "aggs": {
+                        "user_avg_item_price": {"avg": {"field": "price"}},
+                        "user_total_spending": {"sum": {"field": "price"}},
+                        "top_category": {
+                            "terms": {
+                                "field": "category.keyword",
+                                "size": 1,
+                                "order": {"total_spending": "desc"}
+                            },
+                            "aggs": {
+                                "total_spending": {"sum": {"field": "price"}},
+                                "user_category_avg": {"avg": {"field": "price"}}
+                            }
+                        }
+                    }
+                },
+                "global_stats": {
+                    "global": {},
+                    "aggs": {
+                        "global_avg_item_price": {"avg": {"field": "price"}},
+                        "price_percentiles": {
+                            "percentiles": {
+                                "field": "price",
+                                "percents": [float(i) for i in range(1, 100)]
+                            }
+                        },
+                        "global_categories": {
+                            "terms": {"field": "category.keyword", "size": 1000},
+                            "aggs": {
+                                "global_category_avg": {"avg": {"field": "price"}}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        try:
+            response = await self.es.search(index=self.index, body=query)
+            aggs = response.get("aggregations", {})
+            user_stats = aggs.get("user_stats", {})
+            
+            user_avg = user_stats.get("user_avg_item_price", {}).get("value")
+            user_total = user_stats.get("user_total_spending", {}).get("value")
+            
+            global_stats = aggs.get("global_stats", {})
+            global_avg = global_stats.get("global_avg_item_price", {}).get("value")
+            
+            if user_avg is None:
+                user_avg = 0.0
+            if global_avg is None:
+                global_avg = 0.0
+            if user_total is None:
+                user_total = 0.0
+                
+            diff_percent = 0.0
+            if global_avg > 0:
+                diff_percent = round(((user_avg - global_avg) / global_avg) * 100, 1)
+            
+            if diff_percent > 0:
+                status = "You spend more than the average"
+            elif diff_percent < 0:
+                status = "You spend less than the average"
+            else:
+                status = "You spend exactly the average"
+                
+            percentiles_values = global_stats.get("price_percentiles", {}).get("values", {})
+            sorted_items = sorted(
+                [(float(k), v) for k, v in percentiles_values.items() if v is not None and str(v).lower() != 'nan']
+            )
+            
+            rank = 100
+            for p, v in sorted_items:
+                if user_avg <= v:
+                    rank = int(p)
+                    break
+            
+            result = {
+                "user_avg_item_price": round(user_avg, 2),
+                "global_avg_item_price": round(global_avg, 2),
+                "diff_percent": diff_percent,
+                "status": status,
+                "percentile_rank": rank,
+                "user_total_spending": round(user_total, 2)
+            }
+            
+            top_category_buckets = user_stats.get("top_category", {}).get("buckets", [])
+            if top_category_buckets:
+                top_cat = top_category_buckets[0]
+                cat_name = top_cat["key"]
+                user_cat_avg = top_cat.get("user_category_avg", {}).get("value", 0.0)
+                
+                result["top_category"] = cat_name
+                result["user_top_category_avg"] = round(user_cat_avg, 2)
+                
+                global_categories = global_stats.get("global_categories", {}).get("buckets", [])
+                global_cat_avg = 0.0
+                for g_cat in global_categories:
+                    if g_cat["key"] == cat_name:
+                        global_cat_avg = g_cat.get("global_category_avg", {}).get("value", 0.0)
+                        break
+                result["global_top_category_avg"] = round(global_cat_avg, 2)
+                
+            return result
+        except NotFoundError:
+            raise HTTPException(status_code=404, detail="Index not found")
+        except ConnectionError:
+            raise HTTPException(status_code=503, detail="Elasticsearch connection error")
+        except Exception as e:
+            log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
+            raise HTTPException(status_code=500, detail="Internal Server Error")
