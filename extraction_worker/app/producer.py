@@ -16,9 +16,9 @@ class KafkaProducer:
     def init_producer(self):
         try:
             self.producer = Producer(self.config)
-            self.logger.info(f"producer created successfully")
+            self.logger("info", f"producer created successfully")
         except Exception as e:
-            self.logger.eror(f"error creating producer")
+            self.logger("error", f"error creating producer")
 
     def delivery_report(self, err, msg):
         if err:
@@ -36,7 +36,7 @@ class KafkaProducer:
                 callback=self.delivery_report
             )
             self.producer.flush()
-            self.logger.info(f"data: {data} was sent to topic data")
+            self.logger("info", f"data: {data} was sent to topic data")
         except Exception as e:
-            self.logger.error(f"error sending data to topic data: {e}", exc_info=True)
+            self.logger("error", f"error sending data to topic data: {e}")
             

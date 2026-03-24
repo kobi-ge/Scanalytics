@@ -5,18 +5,14 @@ from utils import extract_metadata
 from mongo_connection import MongoConnection
 from producer import KafkaProducer
 from ocr import parse_to_json
+from logger import log_to_elastic
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 
-logger = logging.getLogger(__name__)
 
-consumer_instance = KafkaConsumer(logger)
-producer_instance = KafkaProducer(logger)
-mongo_instance = MongoConnection(logger)
+consumer_instance = KafkaConsumer(log_to_elastic)
+producer_instance = KafkaProducer(log_to_elastic)
+mongo_instance = MongoConnection(log_to_elastic)
 
 def main():
     producer_instance.init_producer()
@@ -32,12 +28,12 @@ def main():
                 
             file_id, user_id = extract_metadata(msg)
             if not file_id:
-                logger.warning(f"Could not extract metadata from message: {msg}. Skipping.")
+                log_to_elastic("warning", f"Could not extract metadata from message: {msg}. Skipping.")
                 continue
                 
             image_bytes = mongo_instance.get_from_gridfs(file_id)
             if not image_bytes:
-                logger.error(f"Failed to fetch image bytes for file_id: {file_id}. Skipping.")
+                log_to_elastic("error", f"Failed to fetch image bytes for file_id: {file_id}. Skipping.")
                 continue
                 
             parsed_data = parse_to_json(image_bytes)
@@ -46,10 +42,10 @@ def main():
                 parsed_data["user_id"] = user_id
                 parsed_data["file_id"] = file_id
                 
-            logger.info(f"\n✅ OCR Processing Finished! Parsed Data: \n{parsed_data}\n")
+            log_to_elastic("info", f"\n✅ OCR Processing Finished! Parsed Data: \n{parsed_data}\n")
             producer_instance.produce(parsed_data)
     except KeyboardInterrupt:
-        logger.info("\n🔴 Stopping main worker gracefully...")
+        log_to_elastic("info", "\n🔴 Stopping main worker gracefully...")
 
 
 

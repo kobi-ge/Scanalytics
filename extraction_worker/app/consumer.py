@@ -19,13 +19,13 @@ class KafkaConsumer:
         try:
             self.consumer = Consumer(self.config)
             self.consumer.subscribe(["images"])
-            self.logger.info("🟢 Consumer is running and subscribed to images topic")
+            self.logger("info", "🟢 Consumer is running and subscribed to images topic")
         except Exception as e:
-            self.logger.error(f"error creating consumer: {e}")
+            self.logger("error", f"error creating consumer: {e}")
 
     def consume(self):
+        self.logger("info", "starting consume operation")
         while True:
-            self.logger.info("starting consume operation")
             msg = self.consumer.poll(1.0)
             if msg is None:
                 continue
@@ -34,6 +34,6 @@ class KafkaConsumer:
                 continue
 
             value = msg.value().decode("utf-8")
-            self.logger.info(f"recieved data: {value} from topic images")
+            self.logger("info", f"recieved data: {value} from topic images")
             return value
 
