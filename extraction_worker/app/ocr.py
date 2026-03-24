@@ -76,11 +76,3 @@ def parse_to_json(image_bytes):
         return json.loads(json_str)
     except json.JSONDecodeError:
         return None
-
-# def get_image_bytes(filepath: str) -> bytes:
-#     """Read and return the bytes of a given file."""
-#     with open(filepath, 'rb') as f:
-#         return f.read()
-
-# image_bytes = get_image_bytes("extraction_worker/app/reciet2.jpg")
-# rprint(parse_to_json(image_bytes))
