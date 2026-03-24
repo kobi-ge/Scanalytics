@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import html
 from llama_index.readers.llama_parse import LlamaParse
 from dotenv import load_dotenv
 from rich import print as rprint
@@ -54,6 +55,8 @@ def parse_to_json(image_path):
     # 3. ניקוי ה-JSON (למקרה ש-LlamaParse מוסיף ```json)
     json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
     json_str = json_match.group(0) if json_match else raw_text
+    
+    json_str = html.unescape(json_str)
     
     try:
         return json.loads(json_str)
