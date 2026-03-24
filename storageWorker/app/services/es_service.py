@@ -1,13 +1,12 @@
-import logging
+from app.logger.logger import log_to_elastic
 from elasticsearch import AsyncElasticsearch, helpers
 
-logger = logging.getLogger(__name__)
 
 class ElasticsearchService:
     def __init__(self, es_client: AsyncElasticsearch):
         self.es_client = es_client
 
-    async def save_receipt_items(self, receipt_id: str, data: dict):
+    async def save_receipt_items(self, user_id: str, receipt_id: str, data: dict):
         items = data.get("items", [])
         if not items:
             return
@@ -19,7 +18,7 @@ class ElasticsearchService:
         for index, item in enumerate(items):
             doc = {**parent_fields, **item}
             # Use a composite ID for ES to prevent duplicates on retry
-            doc_id = f"{receipt_id}_{index}"
+            doc_id = f"{user_id}_{receipt_id}_{index}"
             actions.append({
                 "_op_type": "index",
                 "_index": "receipt_items",
@@ -29,7 +28,7 @@ class ElasticsearchService:
             
         try:
             await helpers.async_bulk(self.es_client, actions)
-            logger.info(f"Saved {len(actions)} items to Elasticsearch for receipt {receipt_id}.")
+            log_to_elastic("INFO", f"Saved {len(actions)} items to Elasticsearch for receipt {receipt_id}.", "storageWorker")
         except Exception as e:
-            logger.error(f"Error saving to Elasticsearch: {e}")
+            log_to_elastic("ERROR", f"Error saving to Elasticsearch: {e}", "storageWorker")
             raise

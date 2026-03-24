@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
 
 class Item(BaseModel):
     name: str
@@ -9,6 +9,8 @@ class Item(BaseModel):
 
 class Receipt(BaseModel):
     model_config = ConfigDict(extra='allow')
+    user_id: str
+    file_id: Optional[str] = None
     payment_method: str
     receipt_id: str
     store: str
