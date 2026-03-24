@@ -28,11 +28,7 @@ class ElasticsearchService:
             
         try:
             await helpers.async_bulk(self.es_client, actions)
-<<<<<<< HEAD
-            logger.info(f"Saved {len(actions)} items to Elasticsearch for receipt {receipt_id} of user {user_id}.")
-=======
             log_to_elastic("INFO", f"Saved {len(actions)} items to Elasticsearch for receipt {receipt_id}.", "storageWorker")
->>>>>>> yosef/InsightsDashboard
         except Exception as e:
             log_to_elastic("ERROR", f"Error saving to Elasticsearch: {e}", "storageWorker")
             raise

@@ -10,15 +10,10 @@ class StorageProcessor:
 
     async def process_message(self, data: dict):
         receipt_id = data.get("receipt_id")
-<<<<<<< HEAD
         user_id = data.get("user_id")
         
         if not receipt_id or not user_id:
-            logger.warning("No receipt_id or user_id found in message. Skipping.")
-=======
-        if not receipt_id:
-            log_to_elastic("WARNING", "No receipt_id found in message. Skipping.", "storageWorker")
->>>>>>> yosef/InsightsDashboard
+            log_to_elastic("WARNING", "No receipt_id or user_id found in message. Skipping.", "storageWorker")
             return
 
         # Generate new composite ID for MongoDB
