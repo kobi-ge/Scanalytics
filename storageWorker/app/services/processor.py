@@ -12,8 +12,8 @@ class StorageProcessor:
         receipt_id = data.get("receipt_id")
         user_id = data.get("user_id")
         
-        if not receipt_id or not user_id:
-            log_to_elastic("WARNING", "No receipt_id or user_id found in message. Skipping.", "storageWorker")
+        if  not user_id:
+            log_to_elastic("WARNING", "No user_id found in message. Skipping.", "storageWorker")
             return
 
         # Generate new composite ID for MongoDB

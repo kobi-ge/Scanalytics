@@ -39,7 +39,9 @@
 
 רכיב,שם / מזהה,תיאור
 MongoDB GridFS, files_db,אחסון קבצי המקור והנתונים המקוננים.
+MongoDB, metadata_db,אחסון נתוני המטא-דאטה של הקבלות.
 Elasticsearch, app-logs,אינדוקס נתונים שטוחים (Flattened) לחיפוש מהיר.
+Elasticsearch, receipt_items,אינדוקס נתונים שטוחים (Flattened) לחיפוש מהיר.
 Kafka Topic, Images,טופיק להעברת קבצי תמונת הקבלות.
 Kafka Topic, data,טופיק להעברת נתוני ה-JSON המעובדים.
 
