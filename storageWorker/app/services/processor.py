@@ -11,13 +11,15 @@ class StorageProcessor:
     async def process_message(self, data: dict):
         receipt_id = data.get("receipt_id")
         user_id = data.get("user_id")
+        file_id = data.get("file_id")
         
-        if  not user_id:
+        if not user_id:
             log_to_elastic("WARNING", "No user_id found in message. Skipping.", "storageWorker")
             return
 
         # Generate new composite ID for MongoDB
-        mongo_id = f"{user_id}_{receipt_id}"
+        # Use receipt_id if available, fallback to file_id to ensure uniqueness
+        mongo_id = f"{user_id}_{receipt_id or file_id or 'unknown'}"
 
         # 1. Save full JSON to MongoDB (Collection: receipts)
         await self.mongo_service.save_receipt(mongo_id, data)
