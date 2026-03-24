@@ -192,6 +192,21 @@ services:
   #     mongodb:
   #       condition: service_healthy
 
+
+  insights_dashboard:
+    build: ./InsightsDashboard
+    container_name: InsightsDashboard
+    ports:
+      - "8091:8091"
+    environment:
+      - ES_HOST=http://elasticsearch:9200
+      - ES_INDEX=receipt_items
+    networks:
+      - microservices-net
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
 volumes:
   mongodb_data:
   es_data:
