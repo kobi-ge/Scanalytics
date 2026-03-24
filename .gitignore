@@ -7,3 +7,6 @@ extraction_worker/app/reciet2.jpg
 extraction_worker/app/test_producer.py
 extraction_worker/app/gridfs_uploader.py
 extraction_worker/app/AI_connection.py
+.idea
+__pycache__
+.env
