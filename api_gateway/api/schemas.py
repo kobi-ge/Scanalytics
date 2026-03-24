@@ -8,7 +8,7 @@ class ReceiptItem(BaseModel):
     category: str
 
 class ManualEntryRequest(BaseModel):
-    user_id: int
+    user_id: str
     payment_method: str
     receipt_id: str
     store: str

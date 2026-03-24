@@ -12,10 +12,9 @@ def fetch_logs():
     print("--- LAST 20 LOGS ---")
     try:
         response = es.search(
-            index="app-logs",
+            index="receipt_items",
             query={"match_all": {}},
-            sort=[{"timestamp": {"order": "desc"}}],
-            size=20
+            size=100
         )
         
         for hit in reversed(response['hits']['hits']):

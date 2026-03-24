@@ -124,6 +124,8 @@ services:
         condition: service_completed_successfully
       mongodb:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   api-gateway:
     build: ./api_gateway

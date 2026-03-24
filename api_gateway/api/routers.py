@@ -47,9 +47,7 @@ def upload_receipt(
 @router.post("/manual-entry")
 def manual_entry(entry: ManualEntryRequest):
     # Send the JSON data directly to Kafka topic 'data'
-    message_data = {
-        "payload": entry.dict()
-    }
+    message_data = entry.dict()
     try:
         kafka_helper.send_message("data", message_data)
         log_to_elastic("INFO", f"Manual entry from user {entry.user_id} received and sent to Kafka")
