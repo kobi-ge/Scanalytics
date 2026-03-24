@@ -110,6 +110,26 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+
+  api-gateway:
+    build: ./api_gateway
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - microservices-net
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongodb:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
   # producer-api:
   #   build: ./producer-api
   #   container_name: producer-api
@@ -123,22 +143,25 @@ services:
   #     kafka-init:
   #       condition: service_completed_successfully
 
-  # storage-worker:
-  #   build: ./storage-worker
-  #   container_name: storage-worker
-  #   environment:
-  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-  #     - MONGO_URI=mongodb://mongodb:27017/metadata_db
-  #     - ELASTICSEARCH_URL=http://elasticsearch:9200
-  #   networks:
-  #     - microservices-net
-  #   depends_on:
-  #     kafka-init:
-  #       condition: service_completed_successfully
-  #     mongodb:
-  #       condition: service_healthy
-  #     elasticsearch:
-  #       condition: service_healthy
+  storage-worker:
+    build: ./storageWorker
+    container_name: storage-worker
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_DATA_TOPIC=data
+      - KAFKA_CONSUMER_GROUP=storage-worker-group
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB_NAME=metadata_db
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - microservices-net
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongodb:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   # analytics-worker:
   #   build: ./analytics-worker
