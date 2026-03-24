@@ -118,8 +118,8 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MONGO_URI=mongodb://mongodb:27017
       - LLAMA_CLOUD_API_KEY=${LLAMA_CLOUD_API_KEY}
-    # networks:
-    #   - microservices-net
+    networks:
+      - microservices-net
     depends_on:
       kafka-init:
         condition: service_completed_successfully

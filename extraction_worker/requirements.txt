@@ -2,3 +2,6 @@ pymongo
 confluent-kafka
 google-generativeai
 python-dotenv
+llama-parse
+llama-index-readers-llama-parse
+rich
