@@ -24,7 +24,6 @@ class KafkaConsumer:
             self.logger("error", f"error creating consumer: {e}")
 
     def consume(self):
-        self.logger("info", "starting consume operation")
         while True:
             msg = self.consumer.poll(1.0)
             if msg is None:

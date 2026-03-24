@@ -21,6 +21,7 @@ def main():
     mongo_instance.create_collection()
     
     try:
+        log_to_elastic("info", "starting consume operation")
         while True:
             msg = consumer_instance.consume()
             if msg is None:
