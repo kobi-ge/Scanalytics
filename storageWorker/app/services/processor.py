@@ -1,8 +1,7 @@
-import logging
+from app.logger.logger import log_to_elastic
 from app.services.mongo_service import MongoService
 from app.services.es_service import ElasticsearchService
 
-logger = logging.getLogger(__name__)
 
 class StorageProcessor:
     def __init__(self, mongo_service: MongoService, es_service: ElasticsearchService):
@@ -11,10 +10,15 @@ class StorageProcessor:
 
     async def process_message(self, data: dict):
         receipt_id = data.get("receipt_id")
+<<<<<<< HEAD
         user_id = data.get("user_id")
         
         if not receipt_id or not user_id:
             logger.warning("No receipt_id or user_id found in message. Skipping.")
+=======
+        if not receipt_id:
+            log_to_elastic("WARNING", "No receipt_id found in message. Skipping.", "storageWorker")
+>>>>>>> yosef/InsightsDashboard
             return
 
         # Generate new composite ID for MongoDB
