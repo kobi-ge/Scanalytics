@@ -4,34 +4,43 @@ import { verifyToken } from '../middleware/auth.js';
 import { getDB } from '../config/db.js';
 
 const router = express.Router();
-
-// הגדרת מקום השמירה של התמונות (זמנית בתיקיית uploads)
 const upload = multer({ dest: 'uploads/' });
 
-// נתיב: POST /api/scans/upload
-// הוא מוגן ב-verifyToken כדי שנדע מי המשתמש שמעלה
+// 1. העלאת סריקה (התאמה לסכימה של הדאטה)
 router.post('/upload', verifyToken, upload.single('receipt'), async (req, res) => {
     try {
-        const { storeName, amount, date } = req.body;
         const db = getDB();
-
         const newScan = {
-            userId: req.userId, // ה-ID שהגיע מהטוקן
-            storeName,
-            amount: parseFloat(amount),
-            date: date || new Date(),
-            imageUrl: req.file ? req.file.path : null, // הנתיב לתמונה
+            userId: req.userId,
+            payment_method: "Unknown", // יפוענח בהמשך
+            receipt_id: `img_${Date.now()}`,
+            store: "ממתין לפענוח",
+            purchase_date: new Date().toISOString().split('T')[0],
+            total_price: 0,
+            items: [],
+            imageUrl: req.file ? req.file.path : null,
             createdAt: new Date()
         };
-
         const result = await db.collection('scans').insertOne(newScan);
-        
-        res.status(201).json({ 
-            message: "הקבלה נשמרה בהצלחה! 🧾", 
-            scanId: result.insertedId 
-        });
+        res.status(201).json({ message: "הקבלה הועלתה!", scanId: result.insertedId });
     } catch (error) {
-        res.status(500).json({ error: "שגיאה בשמירת הקבלה" });
+        res.status(500).json({ error: "שגיאה בשרת" });
+    }
+});
+
+// 2. שמירה ידנית (חדש! חובה להוסיף כדי שהזנה ידנית תעבוד)
+router.post('/manual', verifyToken, async (req, res) => {
+    try {
+        const db = getDB();
+        const receiptData = {
+            ...req.body,
+            userId: req.userId,
+            createdAt: new Date()
+        };
+        const result = await db.collection('scans').insertOne(receiptData);
+        res.status(201).json({ ...receiptData, _id: result.insertedId });
+    } catch (error) {
+        res.status(500).json({ error: "שגיאה בשמירת קבלה ידנית" });
     }
 });
 
