@@ -52,7 +52,7 @@ export default function Statistics() {
     <div className="space-y-10 animate-in fade-in duration-500">
       <header className="bg-navy p-8 rounded-[32px] border-b-4 border-gold shadow-2xl">
         <h2 className="text-3xl font-black text-gold">Insights & Analytics</h2>
-        <p className="text-white/60 text-xs mt-1 uppercase tracking-widest">
+        <p className="text-black text-xs mt-1 uppercase tracking-widest">
           נתונים בזמן אמת משרת ה-Insights
         </p>
       </header>

@@ -39,9 +39,7 @@ export default function UploadReceipt() {
           <Camera size={40} />
         </div>
         <h2 className="text-2xl font-black text-gold">סריקת קבלה חדשה</h2>
-        <p className="text-gold/50 text-xs mt-1 uppercase font-bold tracking-widest italic">
-          FastAPI Gateway
-        </p>
+        
       </div>
 
       <div className="p-10 space-y-8 text-center">
@@ -56,16 +54,15 @@ export default function UploadReceipt() {
             {file ? file.name : "בחר קובץ לסריקה"}
           </span>
           <span className="text-gray-400 text-xs mt-2 block italic">
-            הקובץ יישמר ב-GridFS ויישלח ל-Kafka
           </span>
         </label>
 
         <button
           onClick={handleUpload}
           disabled={loading || !file}
-          className="w-full bg-navy text-gold py-5 rounded-2xl font-black text-xl hover:bg-gold hover:text-navy transition-all shadow-xl disabled:opacity-50"
+          className="w-full bg-navy cursor-pointer text-gold py-5 rounded-2xl font-black text-xl hover:bg-gold hover:text-navy transition-all shadow-xl disabled:opacity-50"
         >
-          {loading ? "מעבד ושולח..." : "שלח לעיבוד דאטה"}
+          {loading ? "מעבד ושולח..." : "שלח לעיבוד נתונים"}
         </button>
       </div>
     </div>
