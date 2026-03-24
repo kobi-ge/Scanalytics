@@ -11,6 +11,7 @@ KAFKA_TOPIC = "data"
 
 STORES = ["Super-Pharm", "Shufersal", "Rami Levy", "KSP", "Ivory", "Tiv Taam"]
 ITEMS = ["Milk", "Bread", "Eggs", "Laptop", "Mouse", "Keyboard", "Shampoo", "Toothpaste", "Coffee", "Tea"]
+USER_IDS = ["user-1", "user-2", "user-3", "user-4"]
 
 async def send_messages():
     producer = AIOKafkaProducer(
@@ -45,7 +46,9 @@ async def send_messages():
                     "category": random.choice(["חשמל", "כלי בית", "מזון", "פארמה", "אחר"])
                 })
             
+            user_id = random.choice(USER_IDS)
             receipt = {
+                "user_id": user_id,
                 "payment_method": random.choice(["Visa", "MasterCard", "Cash", "Bit"]),
                 "receipt_id": receipt_id,
                 "store": random.choice(STORES),
@@ -54,7 +57,7 @@ async def send_messages():
                 "items": items
             }
             
-            print(f"[{count}] Sending receipt {receipt_id} (Amount: {receipt['total_price']}, Items: {num_items}) -> Topic: {KAFKA_TOPIC}")
+            print(f"[{count}] Sending receipt {receipt_id} for {user_id} (Amount: {receipt['total_price']}, Items: {num_items}) -> Topic: {KAFKA_TOPIC}")
             # print(json.dumps(receipt, indent=2))
             
             # Send message to Kafka

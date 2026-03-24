@@ -15,7 +15,7 @@ class MongoService:
                 data,
                 upsert=True
             )
-            log_to_elastic("INFO", f"Saved receipt {receipt_id} to MongoDB.", "storageWorker")
+            log_to_elastic("INFO", f"Saved receipt {doc_id} to MongoDB.", "storageWorker")
         except Exception as e:
             log_to_elastic("ERROR", f"Error saving to MongoDB: {e}", "storageWorker")
             raise

@@ -11,9 +11,12 @@ class ElasticService:
         self.es = AsyncElasticsearch(hosts=[settings.ES_HOST])
         self.index = settings.ES_INDEX
 
-    async def get_category_distribution(self):
+    async def get_category_distribution(self, user_id: str):
         query = {
             "size": 0,
+            "query": {
+                "term": {"user_id.keyword": user_id}
+            },
             "aggs": {
                 "categories": {
                     "terms": {"field": "category.keyword", "size": 1000},
@@ -36,9 +39,12 @@ class ElasticService:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    async def get_monthly_trends(self):
+    async def get_monthly_trends(self, user_id: str):
         query = {
             "size": 0,
+            "query": {
+                "term": {"user_id.keyword": user_id}
+            },
             "aggs": {
                 "monthly": {
                     "date_histogram": {
@@ -64,9 +70,12 @@ class ElasticService:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    async def get_top_stores(self):
+    async def get_top_stores(self, user_id: str):
         query = {
             "size": 0,
+            "query": {
+                "term": {"user_id.keyword": user_id}
+            },
             "aggs": {
                 "stores": {
                     "terms": {"field": "store.keyword", "size": 100},
@@ -96,9 +105,12 @@ class ElasticService:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    async def get_payment_methods(self):
+    async def get_payment_methods(self, user_id: str):
         query = {
             "size": 0,
+            "query": {
+                "term": {"user_id.keyword": user_id}
+            },
             "aggs": {
                 "methods": {
                     "terms": {"field": "payment_method.keyword", "size": 100},
@@ -120,8 +132,10 @@ class ElasticService:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    async def search_items(self, query: str = None, category: str = None):
-        must_clauses = []
+    async def search_items(self, user_id: str, query: str = None, category: str = None):
+        must_clauses = [
+            {"term": {"user_id.keyword": user_id}}
+        ]
         if query:
             must_clauses.append({
                 "multi_match": {
@@ -137,7 +151,7 @@ class ElasticService:
         search_body = {
             "query": {
                 "bool": {
-                    "must": must_clauses if must_clauses else [{"match_all": {}}]
+                    "must": must_clauses
                 }
             },
             "size": 100
@@ -159,9 +173,12 @@ class ElasticService:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    async def get_spending_by_month_and_store(self):
+    async def get_spending_by_month_and_store(self, user_id: str):
         query = {
             "size": 0,
+            "query": {
+                "term": {"user_id.keyword": user_id}
+            },
             "aggs": {
                 "monthly": {
                     "date_histogram": {
