@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import tempfile
 import html
 from llama_index.readers.llama_parse import LlamaParse
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ from rich import print as rprint
 
 load_dotenv()
 
-def parse_to_json(image_path):
+def parse_to_json(image_bytes):
     # 1. הגדרת הפרומפט כ-System Prompt קשיח
     prompt = """
     DO NOT return any text other than a valid JSON object. 
@@ -45,8 +46,21 @@ def parse_to_json(image_path):
         verbose=True
     )
 
-    # 2. הרצת הפענוח
-    documents = parser.load_data(image_path)
+    temp_file_path = ""
+    try:
+        # On Windows, we must use delete=False and close the file before another library can open it
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+            temp_file.write(image_bytes)
+            temp_file.flush()
+            temp_file_path = temp_file.name
+
+        # 2. הרצת הפענוח
+        documents = parser.load_data(temp_file_path)
+    finally:
+        # 3. Clean up manually since we bypassed delete=True
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+
     if not documents:
         return None
 
@@ -63,4 +77,10 @@ def parse_to_json(image_path):
     except json.JSONDecodeError:
         return None
 
+# def get_image_bytes(filepath: str) -> bytes:
+#     """Read and return the bytes of a given file."""
+#     with open(filepath, 'rb') as f:
+#         return f.read()
 
+# image_bytes = get_image_bytes("extraction_worker/app/reciet2.jpg")
+# rprint(parse_to_json(image_bytes))

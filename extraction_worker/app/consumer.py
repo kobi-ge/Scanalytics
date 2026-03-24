@@ -1,10 +1,15 @@
 from confluent_kafka import Consumer
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 class KafkaConsumer:
     def __init__(self, logger):
         self.config = {
-        "bootstrap.servers": "localhost:9092",
+        "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS"),
         "group.id": "team-attack",
         "auto.offset.reset": "earliest"
     }
@@ -13,25 +18,22 @@ class KafkaConsumer:
     def init_consumer(self):
         try:
             self.consumer = Consumer(self.config)
-            self.consumer.subscribe(["Items"])
-            self.logger.info("🟢 Consumer is running and subscribed to Items topic")
+            self.consumer.subscribe(["images"])
+            self.logger.info("🟢 Consumer is running and subscribed to images topic")
         except Exception as e:
             self.logger.error(f"error creating consumer: {e}")
 
     def consume(self):
-        try:
-            while True:
-                self.logger.info("starting consume operation")
-                msg = self.consumer.poll(1.0)
-                if msg is None:
-                    continue
-                if msg.error():
-                    print("❌ Error:", msg.error())
-                    continue
+        while True:
+            self.logger.info("starting consume operation")
+            msg = self.consumer.poll(1.0)
+            if msg is None:
+                continue
+            if msg.error():
+                print("❌ Error:", msg.error())
+                continue
 
-                value = msg.value().decode("utf-8")
-                self.logger.info(f"recieved data: {value} from topic Items")
-                return value
-        except KeyboardInterrupt:
-            print("\n🔴 Stopping consumer")
+            value = msg.value().decode("utf-8")
+            self.logger.info(f"recieved data: {value} from topic images")
+            return value
 

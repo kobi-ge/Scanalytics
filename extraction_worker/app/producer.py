@@ -1,13 +1,15 @@
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from confluent_kafka import Producer
 
 class KafkaProducer:
-    def __init__(self, host, port, logger):
-        self.host = host
-        self.port = port
+    def __init__(self, logger):
         self.config = {
-            "bootstrap.servers": f"{self.host}:{self.port}"
+            "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS")
         }
         self.logger = logger
 
@@ -36,5 +38,5 @@ class KafkaProducer:
             self.producer.flush()
             self.logger.info(f"data: {data} was sent to topic data")
         except Exception as e:
-            self.logger.error(f"error sending data to topic data")
+            self.logger.error(f"error sending data to topic data: {e}", exc_info=True)
             
