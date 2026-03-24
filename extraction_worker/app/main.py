@@ -1,7 +1,7 @@
 import logging
 
 from consumer import KafkaConsumer
-from utils import extract_file_id
+from utils import extract_metadata
 from mongo_connection import MongoConnection
 from producer import KafkaProducer
 from ocr import parse_to_json
@@ -29,16 +29,27 @@ def main():
             msg = consumer_instance.consume()
             if msg is None:
                 continue
-            file_id = extract_file_id(msg)
+                
+            file_id, user_id = extract_metadata(msg)
             if not file_id:
-                logger.warning(f"Could not extract file_id from message: {msg}. Skipping.")
+                logger.warning(f"Could not extract metadata from message: {msg}. Skipping.")
                 continue
+                
             image_bytes = mongo_instance.get_from_gridfs(file_id)
+            if not image_bytes:
+                logger.error(f"Failed to fetch image bytes for file_id: {file_id}. Skipping.")
+                continue
+                
             parsed_data = parse_to_json(image_bytes)
-            print(f"\n✅ OCR Processing Finished! Parsed Data: \n{parsed_data}\n")
+            
+            if parsed_data is not None:
+                parsed_data["user_id"] = user_id
+                parsed_data["file_id"] = file_id
+                
+            logger.info(f"\n✅ OCR Processing Finished! Parsed Data: \n{parsed_data}\n")
             producer_instance.produce(parsed_data)
     except KeyboardInterrupt:
-        print("\n🔴 Stopping main worker gracefully...")
+        logger.info("\n🔴 Stopping main worker gracefully...")
 
 
 

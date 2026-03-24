@@ -42,6 +42,6 @@ class MongoConnection:
             grid_out = self.fs.get(ObjectId(file_id))
             self.logger.info(f"Fetched image bytes from GridFS for ID: {file_id}")
             return grid_out.read()
-        except errors.PyMongoError as e:
-            self.logger.error(f"Error fetching from GridFS: {e}")
+        except Exception as e:
+            self.logger.error(f"Error fetching from GridFS for ID {file_id}: {e}")
             return None
