@@ -1,11 +1,10 @@
-import logging
+from app.logger.logger import log_to_elastic
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.exceptions import NotFoundError, ConnectionError
 from fastapi import HTTPException
 from app.core.config import settings
 from app.schemas import SearchItemBase
 
-logger = logging.getLogger(__name__)
 
 class ElasticService:
     def __init__(self):
@@ -33,7 +32,7 @@ class ElasticService:
         except ConnectionError:
             raise HTTPException(status_code=503, detail="Elasticsearch connection error")
         except Exception as e:
-            logger.error(f"Error querying ES: {e}")
+            log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
     async def get_monthly_trends(self):
@@ -61,7 +60,7 @@ class ElasticService:
         except ConnectionError:
             raise HTTPException(status_code=503, detail="Elasticsearch connection error")
         except Exception as e:
-            logger.error(f"Error querying ES: {e}")
+            log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
     async def get_top_stores(self):
@@ -93,7 +92,7 @@ class ElasticService:
         except ConnectionError:
             raise HTTPException(status_code=503, detail="Elasticsearch connection error")
         except Exception as e:
-            logger.error(f"Error querying ES: {e}")
+            log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
     async def get_payment_methods(self):
@@ -117,7 +116,7 @@ class ElasticService:
         except ConnectionError:
             raise HTTPException(status_code=503, detail="Elasticsearch connection error")
         except Exception as e:
-            logger.error(f"Error querying ES: {e}")
+            log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
     async def search_items(self, query: str = None, category: str = None):
@@ -156,5 +155,5 @@ class ElasticService:
         except ConnectionError:
             raise HTTPException(status_code=503, detail="Elasticsearch connection error")
         except Exception as e:
-            logger.error(f"Error querying ES: {e}")
+            log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")

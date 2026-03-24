@@ -1,6 +1,6 @@
 import asyncio
 import json
-import logging
+from app.logger.logger import log_to_elastic
 from app.core.clients import ClientsManager
 from app.services.processor import StorageProcessor
 from app.services.mongo_service import MongoService
@@ -9,23 +9,21 @@ from app.models.schemas import Receipt
 from pydantic import ValidationError
 import signal
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 async def run_consumer_loop(consumer, processor):
     try:
         await consumer.start()
-        logger.info("Kafka consumer started listening...")
+        log_to_elastic("INFO", "Kafka consumer started listening...", "storageWorker")
         async for msg in consumer:
-            logger.info(f"Received message: {msg.value}")
+            log_to_elastic("INFO", f"Received message: {msg.value}", "storageWorker")
             try:
                 # Validating input schema
                 receipt = Receipt(**msg.value)
                 await processor.process_message(receipt.model_dump())
             except ValidationError as e:
-                logger.error(f"Validation error: {e}")
+                log_to_elastic("ERROR", f"Validation error: {e}", "storageWorker")
             except Exception as e:
-                logger.error(f"Failed to process message: {e}")
+                log_to_elastic("ERROR", f"Failed to process message: {e}", "storageWorker")
     finally:
         await consumer.stop()
 
@@ -44,7 +42,7 @@ async def main():
     task = asyncio.create_task(run_consumer_loop(clients.kafka_consumer, processor))
 
     def handle_shutdown():
-        logger.info("Graceful shutdown initiated...")
+        log_to_elastic("INFO", "Graceful shutdown initiated...", "storageWorker")
         task.cancel()
 
     # Register signal handlers for graceful shutdown (Unix only, will skip on Windows if failed)
@@ -57,13 +55,13 @@ async def main():
     try:
         await task
     except asyncio.CancelledError:
-        logger.info("Consumer task cancelled for shutdown.")
+        log_to_elastic("INFO", "Consumer task cancelled for shutdown.", "storageWorker")
     finally:
         await clients.close_all()
-        logger.info("Clients closed successfully.")
+        log_to_elastic("INFO", "Clients closed successfully.", "storageWorker")
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Interrupted by user, shutting down.")
+        log_to_elastic("INFO", "Interrupted by user, shutting down.", "storageWorker")

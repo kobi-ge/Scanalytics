@@ -1,7 +1,6 @@
-import logging
+from app.logger.logger import log_to_elastic
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-logger = logging.getLogger(__name__)
 
 class MongoService:
     def __init__(self, db: AsyncIOMotorDatabase):
@@ -16,7 +15,7 @@ class MongoService:
                 data,
                 upsert=True
             )
-            logger.info(f"Saved receipt {receipt_id} to MongoDB.")
+            log_to_elastic("INFO", f"Saved receipt {receipt_id} to MongoDB.", "storageWorker")
         except Exception as e:
-            logger.error(f"Error saving to MongoDB: {e}")
+            log_to_elastic("ERROR", f"Error saving to MongoDB: {e}", "storageWorker")
             raise
