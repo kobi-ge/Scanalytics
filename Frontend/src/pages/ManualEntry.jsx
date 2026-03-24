@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useStore } from "../store/useStore";
-import { dataApi } from "../services/api";
-import { useNavigate } from "react-router";
+import { ingestionApi } from "../services/api";
+// import { useNavigate } from "react-router";
 import { Trash2, PlusCircle, CheckCircle2 } from "lucide-react";
+import { useNavigate } from "react-router";
 
 const CATEGORIES = [
   "General",
@@ -57,10 +58,8 @@ export default function ManualEntry() {
     };
     try {
       // שליחה לשרת הפייתון (Port 8000)
-      await dataApi.post("/manual-entry", payload);
+      await ingestionApi.post("/manual-entry", { payload });
 
-      // אופציונלי: שמירה גם בשרת ה-Node המקומי כדי לעדכן את הדשבורד מיד
-      // (או לחכות שהדאטה יחזור דרך ה-DB)
       addReceipt(payload);
 
       alert("הנתונים נשלחו בהצלחה ל-Kafka!");
@@ -97,7 +96,7 @@ export default function ManualEntry() {
               onChange={(e) =>
                 setReceipt({ ...receipt, store: e.target.value })
               }
-              className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-gold focus:bg-white rounded-2xl outline-none transition-all font-bold text-navy"
+              className="w-full p-4 bg-gray-100 border-2 border-transparent focus:border-gold focus:bg-white rounded-2xl outline-none transition-all font-bold text-navy"
             />
           </div>
           <div className="space-y-2">
@@ -125,7 +124,6 @@ export default function ManualEntry() {
               className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-gold focus:bg-white rounded-2xl outline-none transition-all font-bold text-navy appearance-none"
             >
               <option value="Visa">Visa</option>
-              <option value="Mastercard">Mastercard</option>
               <option value="Cash">מזומן</option>
             </select>
           </div>

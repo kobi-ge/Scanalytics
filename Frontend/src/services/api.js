@@ -1,26 +1,40 @@
-import axios from "axios";
+import axios from 'axios';
 
-// שרת ה-Node.js (Auth & Users)
+// 1. שרת ה-Node.js (פורט 3000) - אימות ומשתמשים
 export const authApi = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: 'http://localhost:3000/api',
 });
 
-// שרת ה-Python (Data & Kafka)
-export const dataApi = axios.create({
-  baseURL: "http://localhost:8000",
+// 2. שרת פייתון 1 (פורט 8000) - העלאת נתונים (Ingestion)
+export const ingestionApi = axios.create({
+  baseURL: 'http://localhost:8000',
 });
 
-// הזרקת טוקן לשניהם (אם השרת הפייתון ידרוש זאת בעתיד)
-const addToken = (config) => {
-  const token = localStorage.getItem("token");
+// 3. שרת פייתון 2 (פורט 8001) - סטטיסטיקות (Insights)
+export const insightsApi = axios.create({
+  baseURL: 'http://localhost:8001',
+});
+
+// פונקציית עזר להזרקת ה-Headers לכל הבקשות
+const injectHeaders = (config) => {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // שרת ה-Insights דורש Header ספציפי לזיהוי המשתמש
+  if (userId) {
+    config.headers['X-User-Id'] = userId;
+  }
+  
   return config;
 };
 
-authApi.interceptors.request.use(addToken);
-dataApi.interceptors.request.use(addToken);
+// הפעלת ה-Headers על כל השרתים
+authApi.interceptors.request.use(injectHeaders);
+ingestionApi.interceptors.request.use(injectHeaders);
+insightsApi.interceptors.request.use(injectHeaders);
 
-// כברירת מחדל נשאיר את authApi
 export default authApi;
