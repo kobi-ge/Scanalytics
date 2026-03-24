@@ -1,6 +1,11 @@
 from fastapi import APIRouter, Depends, Query, Header, HTTPException
+from fastapi.responses import StreamingResponse
 from typing import List, Optional
+import base64
+from io import BytesIO
+
 from app.services.elastic_service import ElasticService
+from app.services.mongo_service import mongo_service
 from app.schemas import (
     CategoryStats,
     MonthlyTrend,
@@ -71,3 +76,67 @@ async def user_benchmark(
     es_service: ElasticService = Depends(get_elastic_service)
 ):
     return await es_service.get_user_benchmark(user_id)
+
+
+@router.get("/receipts/images")
+async def get_receipt_images(
+    store: str = Query(..., description="Store name to filter by"),
+    purchase_date: str = Query(..., description="Purchase date (YYYY-MM-DD)"),
+    user_id: str = Depends(get_user_id),
+):
+    """
+    Retrieve receipt images from GridFS filtered by user, store, and purchase date.
+
+    Multi-tenancy: scoped to the authenticated user via X-User-Id header.
+
+    Flow:
+    1. Query metadata_db.receipts for documents matching user_id + store + purchase_date
+    2. Extract file_id from each matching receipt
+    3. Fetch binary image data from files_db GridFS
+    4. Return as StreamingResponse (single) or base64 JSON list (multiple)
+    """
+    # 1. Query metadata_db for matching receipts
+    receipts = await mongo_service.find_receipts(
+        user_id=user_id,
+        store=store,
+        purchase_date=purchase_date,
+    )
+
+    if not receipts:
+        raise HTTPException(status_code=404, detail="No receipts found for the given filters")
+
+    # 2. Collect file_ids
+    file_ids = [r["file_id"] for r in receipts if r.get("file_id")]
+
+    if not file_ids:
+        raise HTTPException(status_code=404, detail="Matching receipts found but none have an associated image file")
+
+    # 3. Fetch files from GridFS
+    images = []
+    for fid in file_ids:
+        file_data = await mongo_service.get_file(fid)
+        if file_data:
+            images.append(file_data)
+
+    if not images:
+        raise HTTPException(status_code=404, detail="Image files not found in GridFS")
+
+    # 4. Return the images
+    if len(images) == 1:
+        img = images[0]
+        return StreamingResponse(
+            BytesIO(img["data"]),
+            media_type=img["content_type"],
+            headers={"Content-Disposition": f'inline; filename="{img["filename"]}"'},
+        )
+
+    # Multiple images → JSON with base64-encoded data
+    result = [
+        {
+            "filename": img["filename"],
+            "content_type": img["content_type"],
+            "data_base64": base64.b64encode(img["data"]).decode("utf-8"),
+        }
+        for img in images
+    ]
+    return {"images": result, "count": len(result)}

@@ -173,10 +173,15 @@ services:
     environment:
       - ES_HOST=http://elasticsearch:9200
       - ES_INDEX=receipt_items
+      - MONGO_URI=mongodb://mongodb:27017
+      - GRIDFS_DB_NAME=files_db
+      - MONGO_METADATA_DB=metadata_db
     networks:
       - microservices-net
     depends_on:
       elasticsearch:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
 
 volumes:
