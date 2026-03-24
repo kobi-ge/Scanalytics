@@ -19,7 +19,7 @@ async def run_consumer_loop(consumer, processor):
             try:
                 # Validating input schema
                 receipt = Receipt(**msg.value)
-                await processor.process_message(receipt.model_dump())
+                await processor.process_message(receipt.model_dump(exclude_none=True))
             except ValidationError as e:
                 log_to_elastic("ERROR", f"Validation error: {e}", "storageWorker")
             except Exception as e:
