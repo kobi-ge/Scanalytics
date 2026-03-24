@@ -61,6 +61,3 @@ def parse_to_json(image_path):
         return None
 
 
-
-img_p = "extraction_worker/app/reciet2.jpg"
-rprint(parse_to_json(img_p))
