@@ -11,9 +11,9 @@ class Receipt(BaseModel):
     model_config = ConfigDict(extra='allow')
     user_id: str
     file_id: Optional[str] = None
-    payment_method: str
-    receipt_id: str
-    store: str
+    payment_method: Optional[str] = None
+    receipt_id: Optional[str] = None
+    store: Optional[str] = None
     purchase_date: str
     total_price: float
     items: List[Item] = []
