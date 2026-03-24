@@ -1,5 +1,0 @@
-motor
-elasticsearch[async]
-pydantic-settings
-aiokafka
-pydantic
