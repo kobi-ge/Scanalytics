@@ -23,7 +23,8 @@ export default function Register() {
       // שמירת הטוקן ועדכון המשתמש בסטייט
       localStorage.setItem('token', response.data.token);
       setUser(response.data.user); // וודא שהשרת מחזיר אובייקט user ב-register
-      
+      useStore.getState().fetchInsightsData();
+
       alert("נרשמת בהצלחה! ברוך הבא.");
       navigate('/');
     } catch (err) {

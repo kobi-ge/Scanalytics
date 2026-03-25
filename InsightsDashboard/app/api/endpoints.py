@@ -77,29 +77,34 @@ async def user_benchmark(
 ):
     return await es_service.get_user_benchmark(user_id)
 
+@router.get("/receipts/recent")
+async def get_recent_receipts(
+    user_id: str = Depends(get_user_id),
+):
+    """Fetch the latest complete receipts for the user from MongoDB."""
+    cursor = mongo_service.metadata_db.receipts.find({"user_id": user_id}).sort("purchase_date", -1).limit(20)
+    receipts = await cursor.to_list(length=20)
+    for r in receipts:
+        r["_id"] = str(r["_id"])
+    return {"items": receipts}
 
 @router.get("/receipts/images")
 async def get_receipt_images(
-    store: str = Query(..., description="Store name to filter by"),
-    purchase_date: str = Query(..., description="Purchase date (YYYY-MM-DD)"),
     user_id: str = Depends(get_user_id),
 ):
     """
-    Retrieve receipt images from GridFS filtered by user, store, and purchase date.
-
-    Multi-tenancy: scoped to the authenticated user via X-User-Id header.
-
+    Retrieve the latest 5 receipt images from GridFS for the authenticated user.
+    
     Flow:
-    1. Query metadata_db.receipts for documents matching user_id + store + purchase_date
+    1. Query metadata_db.receipts for the 5 most recent documents with files matching user_id
     2. Extract file_id from each matching receipt
     3. Fetch binary image data from files_db GridFS
     4. Return as StreamingResponse (single) or base64 JSON list (multiple)
     """
     # 1. Query metadata_db for matching receipts
-    receipts = await mongo_service.find_receipts(
+    receipts = await mongo_service.find_recent_receipts_with_files(
         user_id=user_id,
-        store=store,
-        purchase_date=purchase_date,
+        limit=5
     )
 
     if not receipts:

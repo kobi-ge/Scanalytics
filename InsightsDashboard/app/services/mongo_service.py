@@ -17,15 +17,14 @@ class MongoService:
         self.metadata_db = self.client[settings.MONGO_METADATA_DB]
         self.gridfs_bucket = AsyncIOMotorGridFSBucket(self.client[settings.GRIDFS_DB_NAME])
 
-    async def find_receipts(self, user_id: str, store: str, purchase_date: str) -> list:
-        """Query the receipts collection filtered by user_id, store, and purchase_date."""
+    async def find_recent_receipts_with_files(self, user_id: str, limit: int = 5) -> list:
+        """Query the receipts collection to get the latest receipts that have an associated file."""
         query = {
             "user_id": user_id,
-            "store": store,
-            "purchase_date": purchase_date,
+            "file_id": {"$exists": True, "$ne": None}
         }
-        cursor = self.metadata_db.receipts.find(query)
-        return await cursor.to_list(length=None)
+        cursor = self.metadata_db.receipts.find(query).sort("purchase_date", -1).limit(limit)
+        return await cursor.to_list(length=limit)
 
     async def get_file(self, file_id: str) -> dict | None:
         """

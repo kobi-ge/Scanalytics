@@ -29,6 +29,7 @@ export default function App() {
         try {
           const response = await api.get("/users/me");
           setUser(response.data);
+          useStore.getState().fetchInsightsData();
         } catch (err) {
           logout();
         }

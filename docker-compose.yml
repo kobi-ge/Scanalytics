@@ -92,9 +92,10 @@ services:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
       test: [ "CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.3.0
@@ -170,7 +171,7 @@ services:
     build: ./InsightsDashboard
     container_name: InsightsDashboard
     ports:
-      - "8091:8091"
+      - "8001:8001"
     environment:
       - ES_HOST=http://elasticsearch:9200
       - ES_INDEX=receipt_items
@@ -184,6 +185,35 @@ services:
         condition: service_healthy
       mongodb:
         condition: service_healthy
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/scanalytics_db
+    networks:
+      - microservices-net
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  frontend:
+    build: ./Frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_AUTH_API_URL=http://localhost:3000/api
+      - VITE_INGESTION_API_URL=http://localhost:8000
+      - VITE_INSIGHTS_API_URL=http://localhost:8001
+    networks:
+      - microservices-net
+    depends_on:
+      - backend
+      - api-gateway
+      - insights_dashboard
 
 volumes:
   mongodb_data:

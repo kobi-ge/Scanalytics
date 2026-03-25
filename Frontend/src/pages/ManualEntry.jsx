@@ -16,7 +16,7 @@ const CATEGORIES = [
 ];
 
 export default function ManualEntry() {
-  const { user, addReceipt } = useStore();
+  const { user } = useStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +26,7 @@ export default function ManualEntry() {
     total_price: 0,
     payment_method: "Visa",
     receipt_id: `manual_${Date.now()}`,
-    items: [{ name: "", quantity: 1, price: 0, category: "אחר" }],
+    items: [{ name: "", quantity: 1, price: 0, category: "General" }],
   });
 
   const handleItemChange = (index, field, value) => {
@@ -60,10 +60,12 @@ export default function ManualEntry() {
       // שליחה לשרת הפייתון (Port 8000)
       await ingestionApi.post("/manual-entry", payload);
 
-      addReceipt(payload);
-
       alert("הנתונים נשלחו בהצלחה ל-Kafka!");
       navigate("/");
+      // נסיון ראשון אחרי 20 שניות, שני אחרי 45, שלישי אחרי 90
+      [20000, 45000, 90000].forEach(delay =>
+        setTimeout(() => useStore.getState().fetchInsightsData(), delay)
+      );
     } catch (err) {
       console.error(err);
       alert("שגיאה בשליחה לשרת הדאטה");

@@ -19,6 +19,7 @@ export default function Login() {
       const response = await api.post("/auth/login", formData);
       localStorage.setItem("token", response.data.token);
       setUser(response.data.user);
+      useStore.getState().fetchInsightsData();
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.error || "פרטי התחברות שגויים");
