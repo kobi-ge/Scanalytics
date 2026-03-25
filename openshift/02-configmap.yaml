@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scanalytics-config
+  namespace: yosefshoval-dev
+  labels:
+    app.kubernetes.io/part-of: scanalytics
+data:
+  # ── Kafka ─────────────────────────────────────────────────────────
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  KAFKA_DATA_TOPIC: "data"
+  KAFKA_CONSUMER_GROUP: "storage-worker-group"
+
+  # ── MongoDB ───────────────────────────────────────────────────────
+  MONGO_URI: "mongodb://mongodb:27017"
+  MONGO_DB_NAME: "metadata_db"
+  GRIDFS_DB_NAME: "files_db"
+  MONGO_METADATA_DB: "metadata_db"
+
+  # ── Elasticsearch ─────────────────────────────────────────────────
+  ELASTICSEARCH_URL: "http://elasticsearch:9200"
+  ES_HOST: "http://elasticsearch:9200"
+  ES_INDEX: "receipt_items"
+
+  # ── Frontend / VITE (build-time and runtime) ──────────────────────
+  # These will be overridden by the frontend Deployment using Route
+  # hostnames. See openshift/frontend/deployment.yaml.
+  VITE_AUTH_API_URL: "https://backend-yosefshoval-dev.apps.apps.rm2.thpm.p1.openshiftapps.com/api"
+  VITE_INGESTION_API_URL: "https://api-gateway-yosefshoval-dev.apps.apps.rm2.thpm.p1.openshiftapps.com"
+  VITE_INSIGHTS_API_URL: "https://insights-dashboard-yosefshoval-dev.apps.apps.rm2.thpm.p1.openshiftapps.com"
