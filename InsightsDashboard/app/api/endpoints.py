@@ -101,24 +101,19 @@ async def get_receipt_images(
     3. Fetch binary image data from files_db GridFS
     4. Return as StreamingResponse (single) or base64 JSON list (multiple)
     """
-    # 1. Query metadata_db for matching receipts
-    receipts = await mongo_service.find_recent_receipts_with_files(
+    # 1. Query GridFS fs.files directly by user_id metadata
+    file_docs = await mongo_service.find_recent_files_by_user(
         user_id=user_id,
         limit=5
     )
 
-    if not receipts:
-        raise HTTPException(status_code=404, detail="No receipts found for the given filters")
+    if not file_docs:
+        raise HTTPException(status_code=404, detail="No receipt images found for this user")
 
-    # 2. Collect file_ids
-    file_ids = [r["file_id"] for r in receipts if r.get("file_id")]
-
-    if not file_ids:
-        raise HTTPException(status_code=404, detail="Matching receipts found but none have an associated image file")
-
-    # 3. Fetch files from GridFS
+    # 2. Fetch binary image data from GridFS using the file _id directly
     images = []
-    for fid in file_ids:
+    for doc in file_docs:
+        fid = str(doc["_id"])
         file_data = await mongo_service.get_file(fid)
         if file_data:
             images.append(file_data)
@@ -126,16 +121,7 @@ async def get_receipt_images(
     if not images:
         raise HTTPException(status_code=404, detail="Image files not found in GridFS")
 
-    # 4. Return the images
-    if len(images) == 1:
-        img = images[0]
-        return StreamingResponse(
-            BytesIO(img["data"]),
-            media_type=img["content_type"],
-            headers={"Content-Disposition": f'inline; filename="{img["filename"]}"'},
-        )
-
-    # Multiple images → JSON with base64-encoded data
+    # 3. Return all as base64 JSON (consistent format for the frontend)
     result = [
         {
             "filename": img["filename"],

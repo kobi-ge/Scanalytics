@@ -20,7 +20,8 @@ def upload_receipt(
         file_id = mongo_helper.save_file(
             file_data=file_content, 
             filename=file.filename, 
-            content_type=file.content_type
+            content_type=file.content_type,
+            user_id=user_id
         )
         log_to_elastic("INFO", f"File {file.filename} saved to MongoDB successfully with ID {file_id}")
     except Exception as e:

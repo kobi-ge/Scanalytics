@@ -10,8 +10,11 @@ class MongoDBHelper:
         self.db = self.client[db_name]
         self.fs = gridfs.GridFS(self.db)
         
-    def save_file(self, file_data: bytes, filename: str, content_type: str) -> str:
-        file_id = self.fs.put(file_data, filename=filename, content_type=content_type)
+    def save_file(self, file_data: bytes, filename: str, content_type: str, user_id: str = None) -> str:
+        metadata = {"contentType": content_type}
+        if user_id:
+            metadata["user_id"] = user_id
+        file_id = self.fs.put(file_data, filename=filename, content_type=content_type, metadata=metadata)
         return str(file_id)
 
 

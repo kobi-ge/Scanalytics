@@ -76,7 +76,7 @@ export default function Dashboard() {
 
       {/* Receipt Images Section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-gray-800 mr-2">קבלות אחרונות (תמונות מ-GridFS)</h2>
+        <h2 className="text-xl font-bold text-gray-800 mr-2">קבלות אחרונות</h2>
 
         {loadingImages || isFetchingInsights ? (
           <div className="text-center p-10 text-gray-400 font-bold italic animate-pulse">
