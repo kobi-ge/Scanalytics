@@ -54,6 +54,24 @@ class MongoService:
             log_to_elastic("ERROR", f"Failed to fetch receipt for file_id {file_id}: {e}", "InsightsDashboard")
             return None
 
+    async def search_receipts(self, user_id: str, category: str = None, store: str = None) -> list:
+        """Search receipts by user_id, category, and store name."""
+        query = {"user_id": user_id}
+        if category:
+            query["items.category"] = {"$regex": category, "$options": "i"}
+        if store:
+            query["store"] = {"$regex": store, "$options": "i"}
+        
+        try:
+            cursor = self.metadata_db.receipts.find(query).sort("purchase_date", -1)
+            receipts = await cursor.to_list(length=100)
+            for r in receipts:
+                r["_id"] = str(r["_id"])
+            return receipts
+        except Exception as e:
+            log_to_elastic("ERROR", f"Failed to search receipts for user {user_id}: {e}", "InsightsDashboard")
+            return []
+
 
 # Singleton instance
 mongo_service = MongoService()

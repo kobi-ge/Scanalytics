@@ -5,7 +5,12 @@ import { Link } from "react-router";
 import "../App.css";
 
 export default function Dashboard() {
-  const { user, isFetchingInsights, stats } = useStore();
+  const { user, isFetchingInsights } = useStore();
+  const stats = useStore((state) => state.stats);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchParams, setSearchParams] = useState({ category: "", store: "", type: "data" });
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState(null);
   const [images, setImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [imageError, setImageError] = useState(null);
@@ -39,10 +44,38 @@ export default function Dashboard() {
     fetchImages();
   }, [user, isFetchingInsights]); // רענן גם כשמגיעים עדכוני insights חדשים
 
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setSearchLoading(true);
+    try {
+      const response = await insightsApi.get("/receipts/search", {
+        params: {
+          category: searchParams.category,
+          store: searchParams.store,
+          search_type: searchParams.type
+        },
+        // For physical receipts, we expect a binary stream
+        responseType: searchParams.type === "physical" ? "blob" : "json"
+      });
+
+      if (searchParams.type === "physical") {
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+        window.open(url, '_blank');
+      } else {
+        setSearchResults(response.data.items);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || "חיפוש נכשל";
+      alert(msg);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   const totalSpending = stats.benchmark?.user_total_spending?.toLocaleString() || 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-0 space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-gradient-to-l from-[#967f4a] to-[#c4ad7a] p-6 md:p-8 rounded-2xl text-white shadow-lg text-center md:text-right">
         <div className="w-full md:w-auto">
@@ -51,7 +84,7 @@ export default function Dashboard() {
         </div>
         <div className="w-full md:w-auto text-center md:text-left bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30">
           <p className="text-xs opacity-80 uppercase font-bold tracking-wider">סה"כ הוצאות</p>
-          <span className="text-3xl md:text-4xl font-black">₪ {totalSpending}</span>
+          <span className="text-3xl md:text-4xl font-black">$ {totalSpending}</span>
         </div>
       </div>
 
@@ -74,6 +107,86 @@ export default function Dashboard() {
           <span className="font-bold text-gray-700 text-sm md:text-base">{images.length} קבלות</span>
         </div>
       </div>
+
+      {/* Search Section */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold/10">
+        <h3 className="text-xl font-black text-navy mb-4 flex items-center gap-2">
+           חיפוש קבלות
+        </h3>
+        <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase">קטגוריה</label>
+            <input 
+              type="text"
+              placeholder="למשל: אוכל"
+              className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-gold outline-none font-bold text-navy"
+              value={searchParams.category}
+              onChange={(e) => setSearchParams({...searchParams, category: e.target.value})}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase">שם חנות</label>
+            <input 
+              type="text"
+              placeholder="למשל: סופר"
+              className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-gold outline-none font-bold text-navy"
+              value={searchParams.store}
+              onChange={(e) => setSearchParams({...searchParams, store: e.target.value})}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase">סוג תוצאה</label>
+            <select 
+              className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-gold outline-none font-bold text-navy appearance-none"
+              value={searchParams.type}
+              onChange={(e) => setSearchParams({...searchParams, type: e.target.value})}
+            >
+              <option value="data">ניתוח נתונים (JSON)</option>
+              <option value="physical">קבלה פיזית (קובץ)</option>
+            </select>
+          </div>
+          <button 
+            type="submit"
+            disabled={searchLoading}
+            className="w-full bg-navy text-gold p-3 rounded-xl font-black hover:bg-navy/90 transition disabled:opacity-50"
+          >
+            {searchLoading ? "מחפש..." : "חיפוש"}
+          </button>
+        </form>
+      </div>
+
+      {/* Search Results Modal */}
+      {searchResults && (
+        <div className="fixed inset-0 bg-navy/60 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="bg-navy p-6 flex justify-between items-center text-white">
+              <h3 className="text-2xl font-black text-gold">תוצאות חיפוש</h3>
+              <button onClick={() => setSearchResults(null)} className="text-gold bg-white/10 p-2 rounded-full hover:scale-110 transition">✕</button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-4">
+                {searchResults.map((receipt, idx) => (
+                  <div key={idx} className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center gap-4">
+                    <div>
+                      <p className="font-black text-navy text-lg">{receipt.store}</p>
+                      <p className="text-xs text-gray-500 font-bold">{receipt.purchase_date} | {receipt.items.length} פריטים</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-black text-navy">${receipt.total_price}</p>
+                      <button 
+                        onClick={() => setSelectedReceipt(receipt)}
+                        className="text-xs font-black text-gold underline uppercase hover:text-gold/80"
+                      >
+                        צפה בפרטים
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Receipt Images Section */}
       <div className="space-y-4">
@@ -147,7 +260,7 @@ export default function Dashboard() {
                           <span className="text-[10px] text-gold font-black uppercase tracking-tighter">{item.category}</span>
                         </td>
                         <td className="py-4 text-center font-bold text-gray-500">{item.quantity}</td>
-                        <td className="py-4 text-left font-black text-navy">₪{item.price}</td>
+                        <td className="py-4 text-left font-black text-navy">${item.price}</td>
                       </tr>
                     ))}
                   </tbody>

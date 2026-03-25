@@ -137,3 +137,49 @@ async def get_receipt_images(
         for img in images
     ]
     return {"images": result, "count": len(result)}
+
+
+@router.get("/receipts/search")
+async def search_receipts(
+    category: Optional[str] = Query(None),
+    store: Optional[str] = Query(None),
+    search_type: str = Query("data", regex="^(data|physical)$"),
+    user_id: str = Depends(get_user_id),
+):
+    """
+    Search receipts by category and/or store.
+    - search_type=data: returns JSON receipt list.
+    - search_type=physical: returns a binary file stream for the first match with a file.
+    """
+    receipts = await mongo_service.search_receipts(user_id, category, store)
+
+    if not receipts:
+        raise HTTPException(status_code=404, detail="No matching receipts found")
+
+    if search_type == "data":
+        return {"items": receipts}
+
+    # Physical Receipt Mode: find first with file_id
+    receipt_with_file = next((r for r in receipts if r.get("file_id")), None)
+    
+    if not receipt_with_file:
+        # Check if we have records but no files
+        if receipts:
+            raise HTTPException(
+                status_code=404, 
+                detail="Data exists, but no physical scan is available."
+            )
+        raise HTTPException(status_code=404, detail="No physical scan found")
+
+    file_id = receipt_with_file["file_id"]
+    file_data = await mongo_service.get_file(file_id)
+    
+    if not file_data:
+        raise HTTPException(status_code=404, detail="Physical scan found in metadata but missing in GridFS")
+
+    from io import BytesIO
+    return StreamingResponse(
+        BytesIO(file_data["data"]),
+        media_type=file_data["content_type"],
+        headers={"Content-Disposition": f"inline; filename={file_data['filename']}"}
+    )

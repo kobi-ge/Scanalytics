@@ -57,7 +57,7 @@ export default function Navbar() {
               שלום, {user?.fullName}
             </p>
             <p className="text-xs text-green-400 font-mono">
-              ₪{user?.totalExpenses?.toLocaleString()}
+              ${user?.totalExpenses?.toLocaleString()}
             </p>
           </div>
 

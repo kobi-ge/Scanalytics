@@ -19,7 +19,7 @@ export default function Statistics() {
     );
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500 pb-20">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="bg-navy p-8 rounded-[32px] border-b-4 border-gold shadow-2xl">
         <h2 className="text-3xl font-black text-gold">Insights & Analytics</h2>
         <p className="text-[#c7ae75] text-xs mt-1 uppercase tracking-widest opacity-80">
@@ -32,11 +32,11 @@ export default function Statistics() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center">
             <h4 className="text-gray-500 font-bold text-sm mb-2"> מחיר ממוצע לפריט שלך </h4>
-            <span className="text-3xl font-black text-navy">₪{stats.benchmark.user_avg_item_price}</span>
+            <span className="text-3xl font-black text-navy">${stats.benchmark.user_avg_item_price}</span>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center">
             <h4 className="text-gray-500 font-bold text-sm mb-2"> מחיר ממוצע לפריט במערכת</h4>
-            <span className="text-3xl font-black text-[#967f4a]">₪{stats.benchmark.global_avg_item_price}</span>
+            <span className="text-3xl font-black text-[#967f4a]">${stats.benchmark.global_avg_item_price}</span>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center flex flex-col justify-center">
             <h4 className="text-navy font-black text-lg mb-1">{stats.benchmark.status}</h4>
