@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [images, setImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [imageError, setImageError] = useState(null);
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
 
   // טעינת תמונות הקבלות האמיתיות מ-GridFS
   useEffect(() => {
@@ -92,7 +93,11 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {images.map((img, idx) => (
-              <div key={idx} className="bg-white rounded-[24px] shadow-lg border border-gold/10 overflow-hidden group hover:shadow-xl transition-all">
+              <div 
+                key={idx} 
+                onClick={() => setSelectedReceipt(img)}
+                className="bg-white rounded-[24px] shadow-lg border border-gold/10 overflow-hidden group hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1"
+              >
                 <img
                   src={`data:${img.content_type};base64,${img.data_base64}`}
                   alt={img.filename || `קבלה ${idx + 1}`}
@@ -106,6 +111,65 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Item Modal */}
+      {selectedReceipt && (
+        <div className="fixed inset-0 bg-navy/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-navy p-8 text-white flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black text-gold">פירוט פריטים</h3>
+                <p className="text-xs opacity-60 uppercase font-bold tracking-widest">{selectedReceipt.filename}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedReceipt(null)}
+                className="text-gold hover:scale-110 transition-transform bg-white/10 p-2 rounded-full"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-8 max-h-[60vh] overflow-y-auto">
+              {selectedReceipt.items && selectedReceipt.items.length > 0 ? (
+                <table className="w-full text-right">
+                  <thead>
+                    <tr className="text-[10px] font-black text-gray-400 uppercase border-b border-gold/10">
+                      <th className="pb-4">שם המוצר</th>
+                      <th className="pb-4 text-center">כמות</th>
+                      <th className="pb-4 text-left">מחיר</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {selectedReceipt.items.map((item, idx) => (
+                      <tr key={idx} className="group hover:bg-gray-50 transition-colors">
+                        <td className="py-4">
+                          <span className="block font-bold text-navy">{item.name}</span>
+                          <span className="text-[10px] text-gold font-black uppercase tracking-tighter">{item.category}</span>
+                        </td>
+                        <td className="py-4 text-center font-bold text-gray-500">{item.quantity}</td>
+                        <td className="py-4 text-left font-black text-navy">₪{item.price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-center py-10 text-gray-400 italic font-bold">
+                  לא נמצאו פריטים משוייכים לקבלה זו.
+                </div>
+              )}
+            </div>
+            
+            <div className="p-6 bg-gray-50 border-t flex justify-end">
+              <button 
+                onClick={() => setSelectedReceipt(null)}
+                className="bg-navy text-gold px-8 py-3 rounded-2xl font-black hover:bg-gold hover:text-navy transition-all"
+              >
+                סגור
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

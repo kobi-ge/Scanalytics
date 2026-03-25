@@ -16,7 +16,7 @@ const CATEGORIES = [
 ];
 
 export default function ManualEntry() {
-  const { user } = useStore();
+  const { user, setProcessing } = useStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -59,8 +59,8 @@ export default function ManualEntry() {
     try {
       // שליחה לשרת הפייתון (Port 8000)
       await ingestionApi.post("/manual-entry", payload);
-
-      alert("הנתונים נשלחו בהצלחה ל-Kafka!");
+      setProcessing(true);
+      alert("הנתונים נשלחו בהצלחה!");
       navigate("/");
       // נסיון ראשון אחרי 20 שניות, שני אחרי 45, שלישי אחרי 90
       [20000, 45000, 90000].forEach(delay =>

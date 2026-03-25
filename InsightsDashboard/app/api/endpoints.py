@@ -110,12 +110,16 @@ async def get_receipt_images(
     if not file_docs:
         raise HTTPException(status_code=404, detail="No receipt images found for this user")
 
-    # 2. Fetch binary image data from GridFS using the file _id directly
+    # 2. Fetch binary image data and associated receipt metadata
     images = []
     for doc in file_docs:
         fid = str(doc["_id"])
         file_data = await mongo_service.get_file(fid)
+        receipt_data = await mongo_service.get_receipt_by_file_id(fid)
+        
         if file_data:
+            file_data["file_id"] = fid
+            file_data["items"] = receipt_data.get("items", []) if receipt_data else []
             images.append(file_data)
 
     if not images:
@@ -124,9 +128,11 @@ async def get_receipt_images(
     # 3. Return all as base64 JSON (consistent format for the frontend)
     result = [
         {
+            "file_id": img["file_id"],
             "filename": img["filename"],
             "content_type": img["content_type"],
             "data_base64": base64.b64encode(img["data"]).decode("utf-8"),
+            "items": img["items"]
         }
         for img in images
     ]

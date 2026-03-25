@@ -43,6 +43,17 @@ class MongoService:
             log_to_elastic("WARNING", f"GridFS file not found for id={file_id}: {e}", "InsightsDashboard")
             return None
 
+    async def get_receipt_by_file_id(self, file_id: str) -> dict | None:
+        """Fetch receipt metadata associated with a file_id from the receipts collection."""
+        try:
+            receipt = await self.metadata_db.receipts.find_one({"file_id": file_id})
+            if receipt:
+                receipt["_id"] = str(receipt["_id"])
+            return receipt
+        except Exception as e:
+            log_to_elastic("ERROR", f"Failed to fetch receipt for file_id {file_id}: {e}", "InsightsDashboard")
+            return None
+
 
 # Singleton instance
 mongo_service = MongoService()

@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell, Legend
 } from "recharts";
 
-const COLORS = ["#c7ae75", "#ffffff", "#4f5b66", "#1a2a3a", "#967f4a", "#8C7146", "#B9B5A4"];
+const COLORS = ["#c7ae75", "#7c8a99", "#4f5b66", "#1a2a3a", "#967f4a", "#8C7146", "#B9B5A4"];
 
 export default function Statistics() {
   const { stats, isFetchingInsights } = useStore();
@@ -35,12 +35,12 @@ export default function Statistics() {
             <span className="text-3xl font-black text-navy">₪{stats.benchmark.user_avg_item_price}</span>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center">
-            <h4 className="text-gray-500 font-bold text-sm mb-2">ממוצע פריטים גלובלי</h4>
+            <h4 className="text-gray-500 font-bold text-sm mb-2">ממוצע פריטים של כל משתמשי המערכת</h4>
             <span className="text-3xl font-black text-[#967f4a]">₪{stats.benchmark.global_avg_item_price}</span>
           </div>
-          <div className="bg-navy p-6 rounded-2xl shadow border border-gold/10 text-center flex flex-col justify-center">
-            <h4 className="text-[#c7ae75] font-bold text-lg mb-1">{stats.benchmark.status}</h4>
-            <span className="text-white text-sm">אתה באחוזון: {stats.benchmark.percentile_rank}</span>
+          <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center flex flex-col justify-center">
+            <h4 className="text-navy font-black text-lg mb-1">{stats.benchmark.status}</h4>
+            <span className="text-[#967f4a] font-bold text-sm">אתה באחוזון: {stats.benchmark.percentile_rank}</span>
           </div>
         </div>
       )}

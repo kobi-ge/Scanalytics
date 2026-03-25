@@ -25,4 +25,4 @@ class StorageProcessor:
         await self.mongo_service.save_receipt(mongo_id, data)
 
         # 2. Flatten the items list and save to Elasticsearch
-        await self.es_service.save_receipt_items(user_id, receipt_id, data)
+        await self.es_service.save_receipt_items(user_id, receipt_id, data, file_id)
