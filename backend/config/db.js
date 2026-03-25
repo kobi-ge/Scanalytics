@@ -1,7 +1,7 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-// הסרתי את tlsInsecure והשארתי רק את tlsAllowInvalidCertificates ב-URI
-const uri = "mongodb+srv://barakc121_db_user:TZ3In5ONnclVExTx@cluster0.o6zuj2t.mongodb.net/scanalytics_db?retryWrites=true&w=majority&appName=Cluster0&tlsAllowInvalidCertificates=true";
+// מתשמש ב-ENV משתנה, או פולבק לחיבור מקומי/קומפוז
+const uri = process.env.MONGO_URI || "mongodb://localhost:27017";
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -9,8 +9,6 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   },
-  // הגדרות חיבור יציבות
-  connectTimeoutMS: 10000,
 });
 
 let db;

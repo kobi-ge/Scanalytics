@@ -19,7 +19,7 @@ export const register = async (req, res) => {
         const result = await users.insertOne(newUser);
         const token = jwt.sign({ id: result.insertedId }, JWT_SECRET, { expiresIn: '7d' });
 
-        res.status(201).json({ message: "נרשמת בהצלחה", token });
+        res.status(201).json({ message: "נרשמת בהצלחה", token, user: { _id: result.insertedId, fullName, email } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -36,7 +36,7 @@ export const login = async (req, res) => {
         }
 
         const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, user: { fullName: user.fullName, email: user.email } });
+        res.json({ token, user: { _id: user._id, fullName: user.fullName, email: user.email } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
