@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 01-config-secret.yaml
+  - 02-mongodb.yaml
+  - 03-elasticsearch.yaml
+  - 04-kafka.yaml
+  - 05-kafka-topics-job.yaml
+  - 06-workloads-services.yaml
+  - 07-routes.yaml
+  - 08-builds-imagestreams.yaml

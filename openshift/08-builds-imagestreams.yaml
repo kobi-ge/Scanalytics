@@ -1,0 +1,493 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: backend
+  namespace: yosefshoval-dev
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: frontend
+  namespace: yosefshoval-dev
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: api-gateway
+  namespace: yosefshoval-dev
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: extraction-worker
+  namespace: yosefshoval-dev
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: storage-worker
+  namespace: yosefshoval-dev
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: insights-dashboard
+  namespace: yosefshoval-dev
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: backend
+  namespace: yosefshoval-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/kobi-ge/Scanalytics.git
+      ref: k8s
+    contextDir: backend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: backend:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: frontend
+  namespace: yosefshoval-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/kobi-ge/Scanalytics.git
+      ref: k8s
+    contextDir: Frontend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: frontend:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: api-gateway
+  namespace: yosefshoval-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/kobi-ge/Scanalytics.git
+      ref: k8s
+    contextDir: api_gateway
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: api-gateway:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: extraction-worker
+  namespace: yosefshoval-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/kobi-ge/Scanalytics.git
+      ref: k8s
+    contextDir: extraction_worker
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: extraction-worker:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: storage-worker
+  namespace: yosefshoval-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/kobi-ge/Scanalytics.git
+      ref: k8s
+    contextDir: storageWorker
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: storage-worker:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: insights-dashboard
+  namespace: yosefshoval-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/kobi-ge/Scanalytics.git
+      ref: k8s
+    contextDir: InsightsDashboard
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: insights-dashboard:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: backend
+  namespace: yosefshoval-dev
+spec:
+  replicas: 1
+  selector:
+    app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_URI_SCANALYTICS_DB
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - backend
+        from:
+          kind: ImageStreamTag
+          name: backend:latest
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: frontend
+  namespace: yosefshoval-dev
+spec:
+  replicas: 1
+  selector:
+    app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5173
+              protocol: TCP
+          env:
+            - name: VITE_AUTH_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: VITE_AUTH_API_URL
+            - name: VITE_INGESTION_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: VITE_INGESTION_API_URL
+            - name: VITE_INSIGHTS_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: VITE_INSIGHTS_API_URL
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - frontend
+        from:
+          kind: ImageStreamTag
+          name: frontend:latest
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: api-gateway
+  namespace: yosefshoval-dev
+spec:
+  replicas: 1
+  selector:
+    app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/api-gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_URI
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: ELASTICSEARCH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ELASTICSEARCH_URL
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - api-gateway
+        from:
+          kind: ImageStreamTag
+          name: api-gateway:latest
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: extraction-worker
+  namespace: yosefshoval-dev
+spec:
+  replicas: 1
+  selector:
+    app: extraction-worker
+  template:
+    metadata:
+      labels:
+        app: extraction-worker
+    spec:
+      containers:
+        - name: extraction-worker
+          image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/extraction-worker:latest
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_URI
+            - name: ELASTICSEARCH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ELASTICSEARCH_URL
+            - name: LLAMA_CLOUD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: LLAMA_CLOUD_API_KEY
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - extraction-worker
+        from:
+          kind: ImageStreamTag
+          name: extraction-worker:latest
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: storage-worker
+  namespace: yosefshoval-dev
+spec:
+  replicas: 1
+  selector:
+    app: storage-worker
+  template:
+    metadata:
+      labels:
+        app: storage-worker
+    spec:
+      containers:
+        - name: storage-worker
+          image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/storage-worker:latest
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: KAFKA_DATA_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_DATA_TOPIC
+            - name: KAFKA_CONSUMER_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_CONSUMER_GROUP
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_URI
+            - name: MONGO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_DB_NAME
+            - name: ELASTICSEARCH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ELASTICSEARCH_URL
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - storage-worker
+        from:
+          kind: ImageStreamTag
+          name: storage-worker:latest
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: insights-dashboard
+  namespace: yosefshoval-dev
+spec:
+  replicas: 1
+  selector:
+    app: insights-dashboard
+  template:
+    metadata:
+      labels:
+        app: insights-dashboard
+    spec:
+      containers:
+        - name: insights-dashboard
+          image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/insights-dashboard:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              protocol: TCP
+          env:
+            - name: ES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ES_HOST
+            - name: ES_INDEX
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ES_INDEX
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_URI
+            - name: GRIDFS_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: GRIDFS_DB_NAME
+            - name: MONGO_METADATA_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_METADATA_DB
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - insights-dashboard
+        from:
+          kind: ImageStreamTag
+          name: insights-dashboard:latest
