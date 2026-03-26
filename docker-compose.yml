@@ -96,6 +96,10 @@ services:
       timeout: 10s
       retries: 20
       start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.3.0
