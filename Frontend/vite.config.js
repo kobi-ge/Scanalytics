@@ -19,18 +19,24 @@ export default defineConfig({
     allowedHosts: ['frontend-yosefshoval-dev.apps.rm2.thpm.p1.openshiftapps.com'], 
     proxy: {
       "/api-gw": {
-        target: "http://api-gateway:8000",
+        target: "http://api-gateway.yosefshoval-dev.svc.cluster.local:8000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api-gw/, ""),
+        timeout: 60000,
+        proxyTimeout: 60000,
       },
       "/insights": {
-        target: `http://${insightsDashboardHost}:8001`,
+        target: `http://${insightsDashboardHost}.yosefshoval-dev.svc.cluster.local:8001`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/insights/, ""),
+        timeout: 60000,
+        proxyTimeout: 60000,
       },
       "/api": {
-        target: "http://backend:3000",
+        target: "http://backend.yosefshoval-dev.svc.cluster.local:3000",
         changeOrigin: true,
+        timeout: 60000,
+        proxyTimeout: 60000,
       },
     },
   },

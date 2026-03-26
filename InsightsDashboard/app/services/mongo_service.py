@@ -13,7 +13,7 @@ class MongoService:
     """
 
     def __init__(self):
-        self.client = AsyncIOMotorClient(settings.MONGO_URI)
+        self.client = AsyncIOMotorClient(settings.MONGO_URI, serverSelectionTimeoutMS=5000)
         self.metadata_db = self.client[settings.MONGO_METADATA_DB]
         self.gridfs_bucket = AsyncIOMotorGridFSBucket(self.client[settings.GRIDFS_DB_NAME])
 

@@ -6,7 +6,7 @@ class MongoDBHelper:
     def __init__(self, uri=None, db_name="files_db"):
         if uri is None:
             uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-        self.client = MongoClient(uri)
+        self.client = MongoClient(uri, serverSelectionTimeoutMS=5000)
         self.db = self.client[db_name]
         self.fs = gridfs.GridFS(self.db)
         

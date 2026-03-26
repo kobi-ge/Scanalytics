@@ -4,7 +4,7 @@ metadata:
   name: frontend
   namespace: yosefshoval-dev
   annotations:
-    haproxy.router.openshift.io/timeout: 60s
+    haproxy.router.openshift.io/timeout: 120s
 spec:
   to:
     kind: Service

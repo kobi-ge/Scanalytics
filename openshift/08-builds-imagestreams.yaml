@@ -478,6 +478,11 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: GRIDFS_DB_NAME
+            - name: ELASTICSEARCH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ELASTICSEARCH_URL
             - name: MONGO_METADATA_DB
               valueFrom:
                 configMapKeyRef:
