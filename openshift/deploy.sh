@@ -7,7 +7,8 @@ set -euo pipefail
 alias oc="/c/oc/oc.exe"
 
 NAMESPACE="yosefshoval-dev"
-REGISTRY="image-registry.openshift-image-registry.svc:5000/${NAMESPACE}"
+REGISTRY="default-route-openshift-image-registry.apps.rm2.thpm.p1.openshiftapps.com/${NAMESPACE}"
+#REGISTRY="image-registry.openshift-image-registry.svc:5000/${NAMESPACE}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # ── Colors ──────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ metadata:
     app: backend
     app.kubernetes.io/part-of: scanalytics
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -18,12 +18,12 @@ spec:
     spec:
       initContainers:
         - name: wait-for-mongodb
-          image: mongo:7.0
+          image: quay.io/mongodb/mongodb-community-server:7.0.5-ubuntu2204
           command:
             - sh
             - -c
             - |
-              until mongosh --host mongodb:27017 --eval "db.runCommand('ping').ok" --quiet 2>/dev/null; do
+              until mongosh --host mongodb-svc:27017 --eval "db.runCommand('ping').ok" --quiet 2>/dev/null; do
                 echo "Waiting for MongoDB..."; sleep 5
               done
       containers:
@@ -31,16 +31,19 @@ spec:
           image: image-registry.openshift-image-registry.svc:5000/yosefshoval-dev/backend:latest
           ports:
             - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: scanalytics-config
           env:
             - name: MONGO_URI
-              value: "mongodb://mongodb:27017/scanalytics_db"
+              value: "mongodb://mongodb-svc:27017/metadata_db"
           resources:
             requests:
-              cpu: 250m
-              memory: 256Mi
+              cpu: 10m
+              memory: 128Mi
             limits:
               cpu: "1"
-              memory: 512Mi
+              memory: 128Mi
           readinessProbe:
             httpGet:
               path: /api

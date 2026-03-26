@@ -7,7 +7,7 @@ metadata:
     app: frontend
     app.kubernetes.io/part-of: scanalytics
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -46,11 +46,11 @@ spec:
                   key: VITE_INSIGHTS_API_URL
           resources:
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 128Mi
             limits:
-              cpu: 500m
-              memory: 256Mi
+              cpu: 10m
+              memory: 128Mi
           readinessProbe:
             httpGet:
               path: /

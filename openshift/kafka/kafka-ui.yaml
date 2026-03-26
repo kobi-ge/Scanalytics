@@ -23,7 +23,7 @@ spec:
             - sh
             - -c
             - |
-              until kafka-topics --bootstrap-server kafka:9092 --list 2>/dev/null; do
+              until kafka-topics --bootstrap-server broker-svc:9092 --list 2>/dev/null; do
                 echo "Waiting for Kafka..."; sleep 5
               done
       containers:
@@ -35,14 +35,14 @@ spec:
             - name: KAFKA_CLUSTERS_0_NAME
               value: "scanalytics"
             - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
-              value: "kafka:9092"
+              value: "broker-svc:9092"
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 10m
+              memory: 128Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 10m
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service

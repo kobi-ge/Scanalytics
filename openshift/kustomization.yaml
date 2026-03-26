@@ -29,7 +29,3 @@ resources:
 
   # ── Phase 6: Frontend ─────────────────────────────────────────────
   - frontend/deployment.yaml
-
-commonLabels:
-  app.kubernetes.io/managed-by: kustomize
-  app.kubernetes.io/part-of: scanalytics

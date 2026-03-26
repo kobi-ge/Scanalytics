@@ -23,16 +23,16 @@ spec:
             - sh
             - -c
             - |
-              until kafka-topics --bootstrap-server kafka:9092 --list 2>/dev/null; do
+              until kafka-topics --bootstrap-server broker-svc:9092 --list 2>/dev/null; do
                 echo "Waiting for Kafka..."; sleep 5
               done
         - name: wait-for-mongodb
-          image: mongo:7.0
+          image: quay.io/mongodb/mongodb-community-server:7.0.5-ubuntu2204
           command:
             - sh
             - -c
             - |
-              until mongosh --host mongodb:27017 --eval "db.runCommand('ping').ok" --quiet 2>/dev/null; do
+              until mongosh --host mongodb-svc:27017 --eval "db.runCommand('ping').ok" --quiet 2>/dev/null; do
                 echo "Waiting for MongoDB..."; sleep 5
               done
         - name: wait-for-elasticsearch
@@ -52,8 +52,8 @@ spec:
                 name: scanalytics-config
           resources:
             requests:
-              cpu: 250m
-              memory: 256Mi
+              cpu: 10m
+              memory: 128Mi
             limits:
               cpu: "1"
-              memory: 512Mi
+              memory: 128Mi

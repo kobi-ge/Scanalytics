@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb
+  name: mongodb-svc
   namespace: yosefshoval-dev
   labels:
     app: mongodb
     app.kubernetes.io/part-of: scanalytics
 spec:
-  clusterIP: None          # Headless for StatefulSet
+  clusterIP: None
   selector:
     app: mongodb
   ports:
@@ -23,7 +23,7 @@ metadata:
     app: mongodb
     app.kubernetes.io/part-of: scanalytics
 spec:
-  serviceName: mongodb
+  serviceName: mongodb-svc
   replicas: 1
   selector:
     matchLabels:
@@ -35,38 +35,26 @@ spec:
     spec:
       containers:
         - name: mongodb
-          image: mongo:7.0
+          image: quay.io/mongodb/mongodb-community-server:7.0.5-ubuntu2204
           ports:
             - containerPort: 27017
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 10m
+              memory: 128Mi
             limits:
               cpu: "1"
-              memory: 1Gi
+              memory: 128Mi
           readinessProbe:
             exec:
-              command:
-                - mongosh
-                - --eval
-                - "db.runCommand('ping').ok"
-                - --quiet
+              command: ["mongosh", "--eval", "db.runCommand('ping').ok", "--quiet"]
             initialDelaySeconds: 10
             periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 5
           livenessProbe:
             exec:
-              command:
-                - mongosh
-                - --eval
-                - "db.runCommand('ping').ok"
-                - --quiet
+              command: ["mongosh", "--eval", "db.runCommand('ping').ok", "--quiet"]
             initialDelaySeconds: 30
             periodSeconds: 30
-            timeoutSeconds: 10
-            failureThreshold: 5
           volumeMounts:
             - name: mongodb-data
               mountPath: /data/db

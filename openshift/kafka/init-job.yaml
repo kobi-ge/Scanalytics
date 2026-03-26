@@ -23,7 +23,7 @@ spec:
             - -c
             - |
               echo "Waiting for Kafka to be ready..."
-              until kafka-topics --bootstrap-server kafka:9092 --list 2>/dev/null; do
+              until kafka-topics --bootstrap-server broker-svc:9092 --list 2>/dev/null; do
                 echo "Kafka not ready yet, retrying in 5s..."
                 sleep 5
               done
@@ -36,8 +36,8 @@ spec:
             - -c
             - |
               echo "Creating Kafka topics..."
-              kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 \
+              kafka-topics --create --if-not-exists --bootstrap-server broker-svc:9092 \
                 --partitions 1 --replication-factor 1 --topic data
-              kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 \
+              kafka-topics --create --if-not-exists --bootstrap-server broker-svc:9092 \
                 --partitions 1 --replication-factor 1 --topic images
               echo "Topics created successfully."

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka
+  name: broker-svc
   namespace: yosefshoval-dev
   labels:
     app: kafka
@@ -27,7 +27,7 @@ metadata:
     app: kafka
     app.kubernetes.io/part-of: scanalytics
 spec:
-  serviceName: kafka
+  serviceName: broker-svc
   replicas: 1
   selector:
     matchLabels:
@@ -37,6 +37,7 @@ spec:
       labels:
         app: kafka
     spec:
+      enableServiceLinks: false
       containers:
         - name: kafka
           image: confluentinc/cp-kafka:7.8.3
@@ -51,13 +52,13 @@ spec:
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka:9092"
+              value: "PLAINTEXT://broker-svc:9092"
             - name: KAFKA_LISTENERS
               value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093"
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
               value: "CONTROLLER"
             - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-              value: "1@kafka-0.kafka.yosefshoval-dev.svc.cluster.local:29093"
+              value: "1@kafka-0.broker-svc.yosefshoval-dev.svc.cluster.local:29093"
             - name: KAFKA_PROCESS_ROLES
               value: "broker,controller"
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
@@ -68,11 +69,11 @@ spec:
               value: "MkU3OEVBNTcwNTJENDM2Qk"
           resources:
             requests:
-              cpu: 500m
+              cpu: 100m
               memory: 1Gi
             limits:
               cpu: "1"
-              memory: 2Gi
+              memory: 1Gi
           readinessProbe:
             exec:
               command:
