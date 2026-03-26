@@ -30,6 +30,37 @@ export const useStore = create((set, get) => ({
     const { user } = get();
     if (!user) return;
     set({ isFetchingInsights: true });
+    const startedAt = Date.now();
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/00b09f7f-606f-413d-aca0-e82cb5fb6ee5', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        runId: 'initial',
+        hypothesisId: 'H1_baseURL_or_auth_headers',
+        location: 'useStore.js:fetchInsightsData:start',
+        message: 'fetchInsightsData started (fan-out)',
+        data: {
+          insightsBaseURL: insightsApi.defaults?.baseURL,
+          hasUserId: Boolean(user?._id),
+          hasToken: Boolean(localStorage.getItem('token')),
+          hasStoredUserId: Boolean(localStorage.getItem('userId')),
+          requests: [
+            '/receipts/recent',
+            '/stats/user-benchmark',
+            '/stats/category-distribution',
+            '/stats/monthly-trends',
+            '/stats/top-stores',
+            '/stats/payment-methods',
+            '/stats/spending-by-month-and-store',
+          ],
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+
     try {
       const [recRes, benchRes, catRes, trendRes, storeRes, payRes, spendRes] = await Promise.all([
         insightsApi.get("/receipts/recent"),
@@ -53,6 +84,26 @@ export const useStore = create((set, get) => ({
         isProcessing: false
       });
     } catch (err) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/00b09f7f-606f-413d-aca0-e82cb5fb6ee5', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          runId: 'initial',
+          hypothesisId: 'H2_gateway_502_504',
+          location: 'useStore.js:fetchInsightsData:catch',
+          message: 'fetchInsightsData failed (Promise.all)',
+          data: {
+            status: err?.response?.status,
+            code: err?.code,
+            url: err?.config?.url,
+            baseURL: err?.config?.baseURL,
+            durationMs: Date.now() - startedAt,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       console.error("Failed to fetch insights global data", err);
     } finally {
       set({ isFetchingInsights: false });

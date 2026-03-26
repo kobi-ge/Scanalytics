@@ -15,11 +15,34 @@ export default function UploadReceipt() {
         if (!user?._id) return alert("שגיאת משתמש");
 
         setLoading(true);
+        const startedAt = Date.now();
+
         const formData = new FormData();
         formData.append("file", file); // הפייתון מצפה למפתח 'file'
         formData.append("user_id", user._id);
 
         try {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/00b09f7f-606f-413d-aca0-e82cb5fb6ee5', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    runId: 'initial',
+                    hypothesisId: 'H5_upload_gateway_502_504',
+                    location: 'UploadReceipt.jsx:handleUpload:start',
+                    message: 'upload receipt started',
+                    data: {
+                        ingestionBaseURL: ingestionApi.defaults?.baseURL,
+                        hasUserId: Boolean(user?._id),
+                        hasToken: Boolean(localStorage.getItem('token')),
+                        hasFile: Boolean(file),
+                        fileSizeBytes: file?.size,
+                    },
+                    timestamp: Date.now(),
+                }),
+            }).catch(() => {});
+            // #endregion
+
             const response = await ingestionApi.post("/upload-receipt", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -31,6 +54,26 @@ export default function UploadReceipt() {
                 setTimeout(() => useStore.getState().fetchInsightsData(), delay)
             );
         } catch (error) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/00b09f7f-606f-413d-aca0-e82cb5fb6ee5', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    runId: 'initial',
+                    hypothesisId: 'H5_upload_gateway_502_504',
+                    location: 'UploadReceipt.jsx:handleUpload:catch',
+                    message: 'upload receipt failed',
+                    data: {
+                        status: error?.response?.status,
+                        code: error?.code,
+                        url: error?.config?.url,
+                        baseURL: error?.config?.baseURL,
+                        durationMs: Date.now() - startedAt,
+                    },
+                    timestamp: Date.now(),
+                }),
+            }).catch(() => {});
+            // #endregion
             alert("שגיאה בשליחה לשרת ה-Ingestion");
         } finally {
             setLoading(false);

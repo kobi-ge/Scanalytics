@@ -29,6 +29,23 @@ export default function App() {
         try {
           const response = await api.get("/users/me");
           setUser(response.data);
+          // #region agent log
+          fetch('http://127.0.0.1:7243/ingest/00b09f7f-606f-413d-aca0-e82cb5fb6ee5', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              runId: 'initial',
+              hypothesisId: 'H3_auth_gate',
+              location: 'App.jsx:checkAuth:success',
+              message: 'auth ok, triggering fetchInsightsData',
+              data: {
+                tokenPresent: Boolean(token),
+                userAfterMePresent: Boolean(response?.data),
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion
           useStore.getState().fetchInsightsData();
         } catch (err) {
           logout();
