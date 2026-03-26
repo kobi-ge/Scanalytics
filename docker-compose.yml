@@ -209,9 +209,9 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_AUTH_API_URL=http://localhost:3000/api
-      - VITE_INGESTION_API_URL=http://localhost:8000
-      - VITE_INSIGHTS_API_URL=http://localhost:8001
+      - VITE_AUTH_API_URL=http://204.168.209.210:3000/api
+      - VITE_INGESTION_API_URL=http://204.168.209.210:8000
+      - VITE_INSIGHTS_API_URL=http://204.168.209.210:8001
     networks:
       - microservices-net
     depends_on:
