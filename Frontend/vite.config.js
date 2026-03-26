@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     // פתיחת האפשרות לגשת מכתובות חיצוניות ב-OpenShift
-    allowedHosts: true, 
+    allowedHosts: ['frontend-yosefshoval-dev.apps.rm2.thpm.p1.openshiftapps.com'], 
     proxy: {
       "/api-gw": {
         target: "http://api-gateway:8000",
