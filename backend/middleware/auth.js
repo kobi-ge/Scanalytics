@@ -6,13 +6,13 @@ export const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) return res.status(403).json({ error: "נדרשת התחברות" });
+    if (!token) return res.status(403).json({ error: "Login required" });
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.userId = decoded.id; // שומרים את ה-ID להמשך
+        req.userId = decoded.id; // Store ID for downstream use
         next();
     } catch (err) {
-        res.status(401).json({ error: "טוקן לא תקין" });
+        res.status(401).json({ error: "Invalid token" });
     }
 };

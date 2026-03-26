@@ -14,7 +14,7 @@ router.get('/me', verifyToken, async (req, res) => {
         );
         res.json(user);
     } catch (error) {
-        res.status(500).json({ error: "שגיאה בשליפת נתונים" });
+        res.status(500).json({ error: "Error retrieving data" });
     }
 });
 

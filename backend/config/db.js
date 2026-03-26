@@ -1,6 +1,6 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-// מתשמש ב-ENV משתנה, או פולבק לחיבור מקומי/קומפוז
+// Use environment variable or fallback to local MongoDB
 const uri = process.env.MONGO_URI || "mongodb://localhost:27017";
 
 const client = new MongoClient(uri, {
@@ -18,7 +18,7 @@ export const connectDB = async () => {
         await client.connect();
         db = client.db('scanalytics_db');
         
-        // בדיקה שהחיבור עובד
+        // Verify connection
         await db.command({ ping: 1 });
         
         console.log("Connected to MongoDB Atlas! 🍃");

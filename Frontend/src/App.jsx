@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { useStore } from "./store/useStore";
 import api from "./services/api";
 
-// ייבוא קומפוננטות
+// Import Components
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -42,15 +42,14 @@ export default function App() {
   if (isInitializing)
     return (
       <div className="h-screen bg-navy flex items-center justify-center text-gold font-bold">
-        טוען מערכת...
+        Initializing system...
       </div>
     );
 
   return (
     <BrowserRouter>
       <div
-        className="min-h-screen bg-[#f1f5f9] flex flex-row-reverse"
-        dir="rtl"
+        className="min-h-screen bg-[#f1f5f9] flex flex-row"
       >
         <div className="flex-1 flex flex-col min-w-0">
           {user && <Navbar />}
@@ -61,7 +60,7 @@ export default function App() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-navy opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-navy"></span>
               </div>
-              <span className="tracking-tight text-lg">הנתונים שלך בעיבוד... המערכת תתעדכן אוטומטית</span>
+              <span className="tracking-tight text-lg">Your data is being processed... System will update automatically</span>
             </div>
           )}
 

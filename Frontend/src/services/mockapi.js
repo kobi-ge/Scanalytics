@@ -1,7 +1,6 @@
-
-// דאטה התחלתי מזויף
+// Initial Mock Data
 let usersDB = [
-  { id: 1, username: 'admin', password: '123', fullName: 'מנהל מערכת', email: 'admin@test.com' }
+  { id: 1, username: 'admin', password: '123', fullName: 'System Administrator', email: 'admin@test.com' }
 ];
 
 let receiptsDB = [];
@@ -12,21 +11,21 @@ export const mockApi = {
   login: async (username, password) => {
     await delay(800);
     const user = usersDB.find(u => u.username === username);
-    if (!user) throw new Error('משתמש לא נמצא במערכת.');
-    if (user.password !== password) throw new Error('סיסמה שגויה. אנא נסה שוב.');
+    if (!user) throw new Error('User not found in the system.');
+    if (user.password !== password) throw new Error('Incorrect password. Please try again.');
     
-    // חישוב סך ההוצאות של המשתמש
+    // Calculate user's total expenses
     const userReceipts = receiptsDB.filter(r => r.userId === user.id);
     const totalExpenses = userReceipts.reduce((sum, r) => sum + r.total_price, 0);
     
-    const { password: _, ...safeUser } = user; // לא מחזירים סיסמה לקליינט
+    const { password: _, ...safeUser } = user; // Do not return password to client
     return { ...safeUser, totalExpenses };
   },
 
   register: async (userData) => {
     await delay(800);
     if (usersDB.find(u => u.username === userData.username)) {
-      throw new Error('שם המשתמש כבר קיים במערכת.');
+      throw new Error('Username already exists.');
     }
     const newUser = { id: Date.now(), ...userData };
     usersDB.push(newUser);
@@ -35,17 +34,17 @@ export const mockApi = {
   },
 
   uploadReceiptImage: async (file) => {
-    await delay(1500); // מדמה זמן פענוח תמונה
-    // מחזיר דאטה מפוענח (mock) עם אפשרות לעריכה
+    await delay(1500); // Simulate image processing time
+    // Returns mock parsed data
     return {
       receipt_id: `rec_${Date.now()}`,
-      store: "מחסני חשמל",
+      store: "Walmart",
       purchase_date: "2024-03-20",
       total_price: 4500,
-      "Payment type": "visa",
+      "Payment type": "Visa",
       items: [
-        { id: 1, name: "מקרר סמסונג", quantity: 1, price: 4000, category: "חשמל" },
-        { id: 2, name: "קומקום חשמלי", quantity: 1, price: 500, category: "כלי בית" }
+        { id: 1, name: "Samsung Refrigerator", quantity: 1, price: 4000, category: "Electronics & Gadgets" },
+        { id: 2, name: "Electric Kettle", quantity: 1, price: 500, category: "Home & Furniture" }
       ]
     };
   },

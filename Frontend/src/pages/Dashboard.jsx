@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import "../App.css";
 
-// הקטגוריות המוגדרות מראש
+// Predefined categories
 const CATEGORIES = [
   "General",
   "Fashion & Apparel",
@@ -198,7 +198,7 @@ export default function Dashboard() {
                 ))}
               </select>
 
-              {/* אייקון חץ זהב ממוקם בצורה מוחלטת */}
+              {/* Chevron icon positioned absolutely */}
               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#c7ae75] group-hover:scale-110 transition-transform">
                 <ChevronDown size={20} strokeWidth={3} />
               </div>
@@ -354,7 +354,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Item Modal - הועלה ל-z-[70] כדי שיופיע מעל החיפוש */}
+      {/* Item Modal - z-index is higher to appear over search results */}
       {selectedReceipt && (
         <div className="fixed inset-0 bg-[#0f1924]/90 backdrop-blur-xl z-[70] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-[#c7ae75]/20">

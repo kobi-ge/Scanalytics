@@ -1,21 +1,21 @@
 import axios from 'axios';
 
-// 1. שרת ה-Node.js (פורט 3000) - אימות ומשתמשים
+// 1. Node.js Server (Port 3000) - Authentication & Users
 export const authApi = axios.create({
   baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:3000/api',
 });
 
-// 2. שרת פייתון 1 (פורט 8000) - העלאת נתונים (Ingestion)
+// 2. Python Server 1 (Port 8000) - Data Ingestion
 export const ingestionApi = axios.create({
   baseURL: import.meta.env.VITE_INGESTION_API_URL || 'http://localhost:8000',
 });
 
-// 3. שרת פייתון 2 (פורט 8001) - סטטיסטיקות (Insights)
+// 3. Python Server 2 (Port 8001) - Analytics (Insights)
 export const insightsApi = axios.create({
   baseURL: import.meta.env.VITE_INSIGHTS_API_URL || 'http://localhost:8001',
 });
 
-// פונקציית עזר להזרקת ה-Headers לכל הבקשות
+// Helper function to inject Headers into all requests
 const injectHeaders = (config) => {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
@@ -24,7 +24,7 @@ const injectHeaders = (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
-  // שרת ה-Insights דורש Header ספציפי לזיהוי המשתמש
+  // Insights server requires a specific header for user identification
   if (userId) {
     config.headers['X-User-Id'] = userId;
   }
@@ -32,7 +32,7 @@ const injectHeaders = (config) => {
   return config;
 };
 
-// הפעלת ה-Headers על כל השרתים
+// Apply Headers to all service instances
 authApi.interceptors.request.use(injectHeaders);
 ingestionApi.interceptors.request.use(injectHeaders);
 insightsApi.interceptors.request.use(injectHeaders);

@@ -1,20 +1,20 @@
-import { useState } from "react"; // הוספנו useState
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useStore } from "../store/useStore";
-import { Menu, X } from "lucide-react"; // אייקונים לתפריט מובייל
+import { Menu, X } from "lucide-react"; // Mobile menu icons
 import "../App.css";
 
 export default function Navbar() {
   const { user, logout } = useStore();
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // סטייט לתפריט מובייל
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Mobile menu state
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  // פונקציית עזר לסגירת התפריט בלחיצה על לינק
+  // Helper function to close menu on link click
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
@@ -25,51 +25,48 @@ export default function Navbar() {
             <img src="white.png" className="h-12 md:h-16 w-auto" alt="Logo" />
           </Link>
 
-          {/* תפריט דסקטופ (נשאר בדיוק כפי שהיה) */}
+          {/* Desktop Menu */}
           <div className="hidden md:flex gap-6 text-[#c7ae75] font-medium">
             <Link to="/" className="hover:text-[#ffffff] transition-colors">
-              דשבורד
+              Dashboard
             </Link>
             <Link
               to="/statistics"
               className="hover:text-[#ffffff] transition-colors"
             >
-              סטטיסטיקות
+              Statistics
             </Link>
             <Link
               to="/upload"
               className="hover:text-[#ffffff] transition-colors"
             >
-              סריקת קבלה
+              Scan Receipt
             </Link>
             <Link
               to="/manual"
               className="hover:text-[#ffffff] transition-colors"
             >
-              הזנה ידנית
+              Manual Entry
             </Link>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="text-left hidden sm:block">
-            <p className="text-xs text-[#967f4a] font-bold">
-              שלום, {user?.fullName}
-            </p>
-            <p className="text-xs text-green-400 font-mono">
-              ${user?.totalExpenses?.toLocaleString()}
+          <div className="text-right hidden sm:block border-r border-[#c7ae75]/20 pr-4">
+            <p className="text-xl text-[#967f4a] font-bold">
+              Hello {user?.fullName}
             </p>
           </div>
 
-          {/* כפתור התנתקות (דסקטופ) */}
+          {/* Logout button (desktop) */}
           <button
             onClick={handleLogout}
             className="hidden md:block bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-red-50 hover:text-red-600 transition"
           >
-            התנתק
+            Logout
           </button>
 
-          {/* כפתור המבורגר למובייל (יוצג רק במסכים קטנים) */}
+          {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden text-[#c7ae75] hover:text-white transition-colors"
@@ -88,37 +85,37 @@ export default function Navbar() {
               onClick={closeMenu}
               className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
             >
-              דשבורד
+              Dashboard
             </Link>
             <Link
               to="/statistics"
               onClick={closeMenu}
               className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
             >
-              סטטיסטיקות
+              Statistics
             </Link>
             <Link
               to="/upload"
               onClick={closeMenu}
               className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
             >
-              סריקת קבלה
+              Scan Receipt
             </Link>
             <Link
               to="/manual"
               onClick={closeMenu}
               className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
             >
-              הזנה ידנית
+              Manual Entry
             </Link>
 
             <div className="pt-4 border-t border-[#c7ae75]/20">
-              
+
               <button
                 onClick={handleLogout}
                 className="w-full bg-red-500/10 text-red-500 py-2 rounded-lg font-bold"
               >
-                התנתק מהמערכת
+                Logout from system
               </button>
             </div>
           </div>

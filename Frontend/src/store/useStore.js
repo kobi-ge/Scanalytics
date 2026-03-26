@@ -15,7 +15,7 @@ export const useStore = create((set, get) => ({
   isProcessing: false,
   setProcessing: (val) => set({ isProcessing: val }),
   setUser: (userData) => {
-    // שמירת ה-ID גם ב-localStorage עבור ה-Headers של הפייתון
+    // Store ID in localStorage for Python Backend Headers
     if (userData?._id) localStorage.setItem('userId', userData._id);
     set({ user: userData });
   },

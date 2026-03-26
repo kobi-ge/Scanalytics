@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // ב-ES Modules חובה להוסיף סיומת .js
+import sequelize from '../config/db.js'; // In ES Modules, .js extension is required
 
 const User = sequelize.define('User', {
   email: {

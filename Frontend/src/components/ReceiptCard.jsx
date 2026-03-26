@@ -14,7 +14,7 @@ export default function ReceiptCard({ receipt }) {
 
   return (
     <div className="bg-white border border-gold/10 rounded-[28px] shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
-      {/* Header קומפקטי ויוקרתי */}
+// Header Section
       <div className="p-6 flex justify-between items-center bg-navy text-white relative">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
         <div className="relative z-10">
@@ -46,12 +46,12 @@ export default function ReceiptCard({ receipt }) {
         >
           {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           {isOpen
-            ? "סגור פירוט"
-            : `פירוט מוצרים (${receipt.items?.length || 0})`}
+            ? "Close Details"
+            : `Items (${receipt.items?.length || 0})`}
         </button>
         <button
           onClick={() =>
-            window.confirm("למחוק?") &&
+            window.confirm("Delete this receipt?") &&
             deleteReceipt(receipt._id || receipt.receipt_id)
           }
           className="p-2 text-red-200 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
@@ -63,12 +63,12 @@ export default function ReceiptCard({ receipt }) {
       {/* אזור הפירוט שנפתח */}
       {isOpen && (
         <div className="px-6 pb-6 bg-gray-50/50 border-t border-gold/5 animate-in slide-in-from-top-4 duration-300">
-          <table className="w-full text-sm text-right mt-4">
+          <table className="w-full text-sm text-left mt-4 uppercase">
             <thead>
-              <tr className="text-[10px] font-black text-gray-400 uppercase border-b border-gold/10">
-                <th className="pb-2">פריט</th>
-                <th className="pb-2 text-center">כמות</th>
-                <th className="pb-2 text-left">מחיר</th>
+              <tr className="text-[10px] font-black text-gray-400 border-b border-gold/10">
+                <th className="pb-2">Item</th>
+                <th className="pb-2 text-center">Qty</th>
+                <th className="pb-2 text-right">Price</th>
               </tr>
             </thead>
             <tbody>
@@ -88,7 +88,7 @@ export default function ReceiptCard({ receipt }) {
                   <td className="py-3 text-center font-medium">
                     {item.quantity}
                   </td>
-                  <td className="py-3 text-left font-black text-navy">
+                  <td className="py-3 text-right font-black text-navy italic">
                     ${item.price}
                   </td>
                 </tr>

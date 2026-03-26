@@ -5,11 +5,11 @@ export default {
       colors: {
         navy: "#0f1924",
         gold: "#c7ae75",
-        lightBlue: "#e2e8f0", // כחלחל עדין לרקעים
+        lightBlue: "#e2e8f0", // Soft blue for backgrounds
       },
       fontFamily: {
-        sans: ["Assistant", "sans-serif"], // Assistant הוא פונט מעולה לעברית מודרנית
-        heading: ["Montserrat", "sans-serif"], // פונט נוסף לכותרות אם תרצה
+        sans: ["Outfit", "sans-serif"], // Premium modern sans-serif font
+        heading: ["Montserrat", "sans-serif"], // Additional font for headings
       },
     },
   },

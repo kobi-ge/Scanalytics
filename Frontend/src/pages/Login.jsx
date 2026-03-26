@@ -22,7 +22,7 @@ export default function Login() {
       useStore.getState().fetchInsightsData();
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.error || "פרטי התחברות שגויים");
+      setError(err.response?.data?.error || "Invalid credentials");
     } finally {
       setLoading(false);
     }
@@ -30,19 +30,19 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto mt-20 bg-white p-8 border rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-6 text-center">התחברות</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
-          placeholder="אימייל"
+          placeholder="Email Address"
           className="w-full p-2 border rounded"
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
         />
         <input
           type="password"
-          placeholder="סיסמה"
+          placeholder="Password"
           className="w-full p-2 border rounded"
           onChange={(e) =>
             setFormData({ ...formData, password: e.target.value })
@@ -51,18 +51,18 @@ export default function Login() {
         />
         <button
           disabled={loading}
-          className="w-full bg-blue-600 text-white p-2 rounded font-bold hover:bg-blue-700 disabled:opacity-50"
+          className="w-full bg-[#0f1924] text-[#c7ae75] p-2 rounded font-bold hover:bg-[#c7ae75] hover:text-[#0f1924] transition disabled:opacity-50"
         >
-          {loading ? "מתחבר..." : "היכנס"}
+          {loading ? "Logging in..." : "Sign In"}
         </button>
       </form>
       <div className="mt-6 text-center text-sm text-gray-600 border-t pt-4">
-        אין לך חשבון?{" "}
+        Don't have an account?{" "}
         <Link
           to="/register"
-          className="text-blue-600 font-bold hover:underline"
+          className="text-[#967f4a] font-bold hover:underline"
         >
-          צור חשבון חדש כאן
+          Create a new account
         </Link>
       </div>
     </div>

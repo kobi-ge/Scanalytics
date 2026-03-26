@@ -25,33 +25,33 @@ export default function Register() {
       setUser(response.data.user); // וודא שהשרת מחזיר אובייקט user ב-register
       useStore.getState().fetchInsightsData();
 
-      alert("נרשמת בהצלחה! ברוך הבא.");
+      alert("Registration successful! Welcome.");
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'שגיאה בתהליך ההרשמה');
+      setError(err.response?.data?.error || 'Error during registration');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 bg-white p-8 border rounded-xl shadow-lg" dir="rtl">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">יצירת חשבון</h2>
+    <div className="max-w-md mx-auto mt-20 bg-white p-8 border rounded-xl shadow-lg">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Create Account</h2>
       {error && <p className="bg-red-50 text-red-500 p-3 rounded mb-4 text-center text-sm font-medium border border-red-200">{error}</p>}
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-600 mr-1">שם מלא</label>
+          <label className="text-sm font-semibold text-gray-600 ml-1">Full Name</label>
           <input 
             type="text" 
-            placeholder='ישראל ישראלי' 
+            placeholder='John Doe' 
             className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             onChange={e => setFormData({...formData, fullName: e.target.value})} 
             required 
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-600 mr-1">אימייל</label>
+          <label className="text-sm font-semibold text-gray-600 ml-1">Email</label>
           <input 
             type="email" 
             placeholder='you@example.com' 
@@ -61,10 +61,10 @@ export default function Register() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-600 mr-1">סיסמה</label>
+          <label className="text-sm font-semibold text-gray-600 ml-1">Password</label>
           <input 
             type="password" 
-            placeholder='מינימום 6 תווים' 
+            placeholder='Minimum 6 characters' 
             className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             onChange={e => setFormData({...formData, password: e.target.value})} 
             required 
@@ -72,16 +72,16 @@ export default function Register() {
         </div>
         <button 
           disabled={loading}
-          className="w-full bg-green-600 text-white p-2.5 rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm"
+          className="w-full bg-[#0f1924] text-[#c7ae75] p-2.5 rounded-lg font-bold hover:bg-[#c7ae75] hover:text-[#0f1924] disabled:opacity-50 transition-colors shadow-sm"
         >
-          {loading ? 'יוצר חשבון...' : 'הירשם עכשיו'}
+          {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
 
       <div className="mt-6 text-center text-sm text-gray-600 border-t pt-4">
-        כבר יש לך חשבון?{' '}
-        <Link to="/login" className="text-blue-600 font-bold hover:underline">
-          התחבר כאן
+        Already have an account?{' '}
+        <Link to="/login" className="text-[#967f4a] font-bold hover:underline">
+          Login here
         </Link>
       </div>
     </div>

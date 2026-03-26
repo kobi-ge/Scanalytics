@@ -10,7 +10,7 @@ from rich import print as rprint
 load_dotenv()
 
 def parse_to_json(image_bytes):
-    # 1. הגדרת הפרומפט כ-System Prompt קשיח
+    # 1. Define the system prompt for strict JSON output
     prompt = """
     DO NOT return any text other than a valid JSON object. 
     Task: Extract data from the receipt image.
@@ -45,7 +45,7 @@ def parse_to_json(image_bytes):
     parser = LlamaParse(
         api_key=os.getenv("LLAMA_CLOUD_API_KEY"),
         result_type="markdown",
-        system_prompt=prompt, # כאן המפתח לשינוי
+        system_prompt=prompt, # Injecting the strict prompt here
         verbose=True
     )
 
@@ -57,7 +57,7 @@ def parse_to_json(image_bytes):
             temp_file.flush()
             temp_file_path = temp_file.name
 
-        # 2. הרצת הפענוח
+        # 2. Run the parsing
         documents = parser.load_data(temp_file_path)
     finally:
         # 3. Clean up manually since we bypassed delete=True
@@ -69,7 +69,7 @@ def parse_to_json(image_bytes):
 
     raw_text = documents[0].text
 
-    # 3. ניקוי ה-JSON (למקרה ש-LlamaParse מוסיף ```json)
+    # 3. Clean up JSON (in case LlamaParse adds markdown blocks)
     json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
     json_str = json_match.group(0) if json_match else raw_text
     

@@ -11,7 +11,7 @@ export const register = async (req, res) => {
         const users = db.collection('users');
 
         const existingUser = await users.findOne({ email });
-        if (existingUser) return res.status(400).json({ error: "אימייל כבר קיים" });
+        if (existingUser) return res.status(400).json({ error: "Email already exists" });
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = { fullName, email, password: hashedPassword, createdAt: new Date() };
@@ -19,7 +19,7 @@ export const register = async (req, res) => {
         const result = await users.insertOne(newUser);
         const token = jwt.sign({ id: result.insertedId }, JWT_SECRET, { expiresIn: '7d' });
 
-        res.status(201).json({ message: "נרשמת בהצלחה", token, user: { _id: result.insertedId, fullName, email } });
+        res.status(201).json({ message: "Registration successful", token, user: { _id: result.insertedId, fullName, email } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -32,7 +32,7 @@ export const login = async (req, res) => {
         const user = await db.collection('users').findOne({ email });
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(400).json({ error: "פרטים שגויים" });
+            return res.status(400).json({ error: "Invalid credentials" });
         }
 
         const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });

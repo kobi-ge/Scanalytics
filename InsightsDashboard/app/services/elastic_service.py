@@ -304,12 +304,12 @@ class ElasticService:
             else:
                 status = "You spend exactly the average"
                 
-            # חישוב אחוזון על בסיס ממוצעי משתמשים (User-to-User)
+            # Calculate percentile based on user averages (User-to-User)
             user_avg_buckets = global_stats.get("user_averages", {}).get("buckets", [])
             all_user_avgs = [b["avg_price"]["value"] for b in user_avg_buckets if b["avg_price"]["value"] is not None]
             rank = 0
             if all_user_avgs:
-                # ספירת משתמשים שהוצאותיהם נמוכות מהמשתמש הנוכחי
+                # Count users whose spending is lower than the current user
                 lower_than = sum(1 for avg in all_user_avgs if avg < user_avg)
                 rank = int((lower_than / len(all_user_avgs)) * 100)
             

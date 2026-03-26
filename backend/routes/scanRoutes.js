@@ -6,7 +6,7 @@ import { getDB } from '../config/db.js';
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-// 1. העלאת סריקה (התאמה לסכימה של הדאטה)
+// 1. Upload scan (consistent with data schema)
 router.post('/upload', verifyToken, upload.single('receipt'), async (req, res) => {
     try {
         const db = getDB();
@@ -14,7 +14,7 @@ router.post('/upload', verifyToken, upload.single('receipt'), async (req, res) =
             userId: req.userId,
             payment_method: "Unknown", // יפוענח בהמשך
             receipt_id: `img_${Date.now()}`,
-            store: "ממתין לפענוח",
+            store: "Pending extraction...",
             purchase_date: new Date().toISOString().split('T')[0],
             total_price: 0,
             items: [],
@@ -22,13 +22,13 @@ router.post('/upload', verifyToken, upload.single('receipt'), async (req, res) =
             createdAt: new Date()
         };
         const result = await db.collection('scans').insertOne(newScan);
-        res.status(201).json({ message: "הקבלה הועלתה!", scanId: result.insertedId });
+        res.status(201).json({ message: "Receipt uploaded!", scanId: result.insertedId });
     } catch (error) {
-        res.status(500).json({ error: "שגיאה בשרת" });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
-// 2. שמירה ידנית (חדש! חובה להוסיף כדי שהזנה ידנית תעבוד)
+// 2. Manual entry (Save directly to DB)
 router.post('/manual', verifyToken, async (req, res) => {
     try {
         const db = getDB();
@@ -40,7 +40,7 @@ router.post('/manual', verifyToken, async (req, res) => {
         const result = await db.collection('scans').insertOne(receiptData);
         res.status(201).json({ ...receiptData, _id: result.insertedId });
     } catch (error) {
-        res.status(500).json({ error: "שגיאה בשמירת קבלה ידנית" });
+        res.status(500).json({ error: "Error saving manual receipt" });
     }
 });
 
