@@ -27,11 +27,11 @@ spec:
       labels:
         app: mongodb
     spec:
-      securityContext:
-        fsGroup: 1001
+      serviceAccountName: deployer
       containers:
         - name: mongodb
-          image: mongo:7.0
+          # Use an image tag that this cluster can pull (avoid failing mirroring to JFrog).
+          image: quay.io/mongodb/mongodb-community-server:7.0.29-ubuntu2204-20260207T080644Z
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 27017
