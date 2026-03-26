@@ -14,7 +14,8 @@ class KafkaProducerHelper:
             value=json.dumps(message).encode('utf-8'),
             callback=self.delivery_report
         )
-        self.producer.flush()
+        # poll(0) triggers any delivered message callbacks without blocking
+        self.producer.poll(0)
 
     @staticmethod
     def delivery_report(err, msg):

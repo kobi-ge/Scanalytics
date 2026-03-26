@@ -8,12 +8,12 @@ from logging_system.logger import log_to_elastic
 router = APIRouter()
 
 @router.post("/upload-receipt")
-def upload_receipt(
+async def upload_receipt(
     user_id: str = Form(...),
     file: UploadFile = File(...)
 ):
-    # Read the file synchronously
-    file_content = file.file.read()
+    # Read the file
+    file_content = await file.read()
     
     # Save the raw file to MongoDB GridFS
     try:
@@ -46,7 +46,7 @@ def upload_receipt(
     return {"message": "Receipt uploaded successfully", "file_id": file_id}
 
 @router.post("/manual-entry")
-def manual_entry(entry: ManualEntryRequest):
+async def manual_entry(entry: ManualEntryRequest):
     # Send the JSON data directly to Kafka topic 'data'
     message_data = entry.dict()
     try:
