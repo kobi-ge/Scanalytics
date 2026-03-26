@@ -16,7 +16,7 @@ const CATEGORIES = [
 ];
 
 export default function ManualEntry() {
-  const { user } = useStore();
+  const { user, setProcessing } = useStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -59,8 +59,8 @@ export default function ManualEntry() {
     try {
       // שליחה לשרת הפייתון (Port 8000)
       await ingestionApi.post("/manual-entry", payload);
-
-      alert("הנתונים נשלחו בהצלחה ל-Kafka!");
+      setProcessing(true);
+      alert("הנתונים נשלחו בהצלחה!");
       navigate("/");
       // נסיון ראשון אחרי 20 שניות, שני אחרי 45, שלישי אחרי 90
       [20000, 45000, 90000].forEach(delay =>
@@ -75,7 +75,7 @@ export default function ManualEntry() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-[32px] shadow-2xl border border-gold/10 overflow-hidden animate-in fade-in zoom-in duration-300">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="bg-navy p-8 border-b border-gold/20 flex justify-between items-center">
         <h2 className="text-3xl font-black text-gold tracking-tight">
           הזנה ידנית
@@ -243,12 +243,12 @@ export default function ManualEntry() {
 
         {/* סיכום וכפתור שמירה */}
         <div className="pt-10 border-t-2 border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="bg-navy/5 p-6 rounded-3xl border border-navy/5 min-w-[240px]">
+          <div className="bg-navy/5 p-6 rounded-3xl border border-navy/5 w-full md:w-auto">
             <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">
               סה"כ לתשלום:
             </p>
             <div className="text-5xl font-black text-navy tracking-tighter">
-              {receipt.total_price.toLocaleString()} ₪
+              {receipt.total_price.toLocaleString()} $
             </div>
           </div>
           <button

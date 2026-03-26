@@ -6,7 +6,7 @@ class ElasticsearchService:
     def __init__(self, es_client: AsyncElasticsearch):
         self.es_client = es_client
 
-    async def save_receipt_items(self, user_id: str, receipt_id: str, data: dict):
+    async def save_receipt_items(self, user_id: str, receipt_id: str, data: dict, file_id: str = None):
         items = data.get("items", [])
         if not items:
             return
@@ -17,8 +17,11 @@ class ElasticsearchService:
 
         for index, item in enumerate(items):
             doc = {**parent_fields, **item}
-            # Use a composite ID for ES to prevent duplicates on retry
-            doc_id = f"{user_id}_{receipt_id}_{index}"
+            # Use a robust composite ID for ES to prevent duplicates and handle missing receipt_ids.
+            # file_id is unique per upload. receipt_id stays for metadata tracking.
+            source_id = file_id or "manual"
+            doc_id = f"{user_id}_{source_id}_{receipt_id or 'none'}_{index}"
+            
             actions.append({
                 "_op_type": "index",
                 "_index": "receipt_items",

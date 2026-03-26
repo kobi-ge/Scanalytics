@@ -89,7 +89,7 @@ export default function ReceiptCard({ receipt }) {
                     {item.quantity}
                   </td>
                   <td className="py-3 text-left font-black text-navy">
-                    ₪{item.price}
+                    ${item.price}
                   </td>
                 </tr>
               ))}

@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell, Legend
 } from "recharts";
 
-const COLORS = ["#c7ae75", "#ffffff", "#4f5b66", "#1a2a3a", "#967f4a", "#8C7146", "#B9B5A4"];
+const COLORS = ["#c7ae75", "#7c8a99", "#4f5b66", "#1a2a3a", "#967f4a", "#8C7146", "#B9B5A4"];
 
 export default function Statistics() {
   const { stats, isFetchingInsights } = useStore();
@@ -19,7 +19,7 @@ export default function Statistics() {
     );
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500 pb-20">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="bg-navy p-8 rounded-[32px] border-b-4 border-gold shadow-2xl">
         <h2 className="text-3xl font-black text-gold">Insights & Analytics</h2>
         <p className="text-[#c7ae75] text-xs mt-1 uppercase tracking-widest opacity-80">
@@ -31,23 +31,23 @@ export default function Statistics() {
       {stats.benchmark && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center">
-            <h4 className="text-gray-500 font-bold text-sm mb-2">ממוצע הפריטים שלך</h4>
-            <span className="text-3xl font-black text-navy">₪{stats.benchmark.user_avg_item_price}</span>
+            <h4 className="text-gray-500 font-bold text-sm mb-2"> מחיר ממוצע לפריט שלך </h4>
+            <span className="text-3xl font-black text-navy">${stats.benchmark.user_avg_item_price}</span>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center">
-            <h4 className="text-gray-500 font-bold text-sm mb-2">ממוצע פריטים גלובלי</h4>
-            <span className="text-3xl font-black text-[#967f4a]">₪{stats.benchmark.global_avg_item_price}</span>
+            <h4 className="text-gray-500 font-bold text-sm mb-2"> מחיר ממוצע לפריט במערכת</h4>
+            <span className="text-3xl font-black text-[#967f4a]">${stats.benchmark.global_avg_item_price}</span>
           </div>
-          <div className="bg-navy p-6 rounded-2xl shadow border border-gold/10 text-center flex flex-col justify-center">
-            <h4 className="text-[#c7ae75] font-bold text-lg mb-1">{stats.benchmark.status}</h4>
-            <span className="text-white text-sm">אתה באחוזון: {stats.benchmark.percentile_rank}</span>
+          <div className="bg-white p-6 rounded-2xl shadow border border-gold/10 text-center flex flex-col justify-center">
+            <h4 className="text-navy font-black text-lg mb-1">{stats.benchmark.status}</h4>
+            <span className="text-[#967f4a] font-bold text-sm"> הוצאות גבוהות מ- {stats.benchmark.percentile_rank} % מהמשתמשים</span>
           </div>
         </div>
       )}
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+
         {/* Category Distribution */}
         <div className="bg-white p-8 rounded-[32px] shadow-xl border border-gold/10">
           <h3 className="text-navy font-black mb-6 border-r-4 border-gold pr-3">
@@ -121,7 +121,7 @@ export default function Statistics() {
             </ResponsiveContainer>
           </div>
         </div>
-        
+
       </div>
     </div>
   );

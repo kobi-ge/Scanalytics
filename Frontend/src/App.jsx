@@ -19,7 +19,7 @@ const PrivateRoute = ({ children }) => {
 };
 
 export default function App() {
-  const { user, setUser, logout } = useStore();
+  const { user, setUser, logout, isProcessing } = useStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -54,6 +54,16 @@ export default function App() {
       >
         <div className="flex-1 flex flex-col min-w-0">
           {user && <Navbar />}
+
+          {isProcessing && (
+            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-gold text-navy px-8 py-4 rounded-[24px] shadow-2xl border-2 border-navy/10 font-black flex items-center gap-4 animate-in slide-in-from-top-8 duration-500">
+              <div className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-navy opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-navy"></span>
+              </div>
+              <span className="tracking-tight text-lg">הנתונים שלך בעיבוד... המערכת תתעדכן אוטומטית</span>
+            </div>
+          )}
 
           <main className="p-8 overflow-y-auto">
             <Routes>

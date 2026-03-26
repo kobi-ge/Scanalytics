@@ -43,6 +43,35 @@ class MongoService:
             log_to_elastic("WARNING", f"GridFS file not found for id={file_id}: {e}", "InsightsDashboard")
             return None
 
+    async def get_receipt_by_file_id(self, file_id: str) -> dict | None:
+        """Fetch receipt metadata associated with a file_id from the receipts collection."""
+        try:
+            receipt = await self.metadata_db.receipts.find_one({"file_id": file_id})
+            if receipt:
+                receipt["_id"] = str(receipt["_id"])
+            return receipt
+        except Exception as e:
+            log_to_elastic("ERROR", f"Failed to fetch receipt for file_id {file_id}: {e}", "InsightsDashboard")
+            return None
+
+    async def search_receipts(self, user_id: str, category: str = None, store: str = None) -> list:
+        """Search receipts by user_id, category, and store name."""
+        query = {"user_id": user_id}
+        if category:
+            query["items.category"] = {"$regex": category, "$options": "i"}
+        if store:
+            query["store"] = {"$regex": store, "$options": "i"}
+        
+        try:
+            cursor = self.metadata_db.receipts.find(query).sort("purchase_date", -1)
+            receipts = await cursor.to_list(length=100)
+            for r in receipts:
+                r["_id"] = str(r["_id"])
+            return receipts
+        except Exception as e:
+            log_to_elastic("ERROR", f"Failed to search receipts for user {user_id}: {e}", "InsightsDashboard")
+            return []
+
 
 # Singleton instance
 mongo_service = MongoService()

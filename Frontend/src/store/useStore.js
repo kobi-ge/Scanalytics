@@ -12,6 +12,8 @@ export const useStore = create((set, get) => ({
     spendingByMonthStore: [],
     benchmark: null
   },
+  isProcessing: false,
+  setProcessing: (val) => set({ isProcessing: val }),
   setUser: (userData) => {
     // שמירת ה-ID גם ב-localStorage עבור ה-Headers של הפייתון
     if (userData?._id) localStorage.setItem('userId', userData._id);
@@ -47,7 +49,8 @@ export const useStore = create((set, get) => ({
           paymentMethods: payRes.data,
           spendingByMonthStore: spendRes.data,
           benchmark: benchRes.data
-        }
+        },
+        isProcessing: false
       });
     } catch (err) {
       console.error("Failed to fetch insights global data", err);
