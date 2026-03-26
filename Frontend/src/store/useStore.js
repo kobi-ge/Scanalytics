@@ -57,5 +57,17 @@ export const useStore = create((set, get) => ({
     } finally {
       set({ isFetchingInsights: false });
     }
+  },
+  deleteReceipt: async (receiptId) => {
+    try {
+      await insightsApi.delete(`/receipts/${receiptId}`);
+      // Refresh all statistics and the recent list
+      get().fetchInsightsData();
+      return true;
+    } catch (err) {
+      console.error("Delete failed:", err);
+      // alert("Error deleting receipt and its data");
+      return false;
+    }
   }
 }));

@@ -51,7 +51,7 @@ export default function ReceiptCard({ receipt }) {
         </button>
         <button
           onClick={() =>
-            window.confirm("Delete this receipt?") &&
+            window.confirm("Are you sure you want to delete this file? This action cannot be undone.") &&
             deleteReceipt(receipt._id || receipt.receipt_id)
           }
           className="p-2 text-red-200 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"

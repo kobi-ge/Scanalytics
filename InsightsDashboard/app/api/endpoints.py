@@ -196,3 +196,44 @@ async def search_receipts(
         media_type=file_data["content_type"],
         headers={"Content-Disposition": f"inline; filename={file_data['filename']}"}
     )
+
+@router.delete("/receipts/{receipt_id}")
+async def delete_receipt(
+    receipt_id: str,
+    user_id: str = Depends(get_user_id),
+    es_service: ElasticService = Depends(get_elastic_service)
+):
+    """
+    Coordinated Full Wipe of a receipt and all its associated data.
+    """
+    # 1. Fetch metadata first to get all identifiers before we delete the record
+    # This ensures we have the correct internal IDs for ES cleanup
+    search_query = {"user_id": user_id}
+    try:
+        from bson import ObjectId
+        search_query["_id"] = ObjectId(receipt_id)
+    except:
+        search_query["receipt_id"] = receipt_id
+
+    receipt = await mongo_service.metadata_db.receipts.find_one(search_query)
+    
+    # Fallback to file_id if not found by primary IDs
+    if not receipt:
+        receipt = await mongo_service.metadata_db.receipts.find_one({"user_id": user_id, "file_id": receipt_id})
+
+    if not receipt:
+        raise HTTPException(status_code=404, detail="Receipt not found")
+
+    # Collect all IDs for ES scrub
+    meta_id = str(receipt["_id"])
+    internal_receipt_id = receipt.get("receipt_id")
+    file_id = receipt.get("file_id")
+
+    # 2. Elasticsearch Clean up (scrub all line items)
+    # We pass all possible ID mappings to ensure everything is removed
+    await es_service.scrub_receipt_data(user_id, meta_id, internal_receipt_id, file_id)
+    
+    # 3. MongoDB and GridFS Clean up (actual removal)
+    await mongo_service.delete_receipt(user_id, receipt_id)
+    
+    return {"message": "Receipt and all associated data successfully removed from the system"}

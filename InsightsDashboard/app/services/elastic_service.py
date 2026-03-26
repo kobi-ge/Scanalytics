@@ -347,3 +347,37 @@ class ElasticService:
         except Exception as e:
             log_to_elastic("ERROR", f"Error querying ES: {e}", "InsightsDashboard")
             raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    async def scrub_receipt_data(self, user_id: str, meta_id: str, receipt_id: str = None, file_id: str = None):
+        """
+        Deep scrub: delete all items that match ANY of the receipt's identifiers.
+        """
+        should_clauses = [
+            {"term": {"receipt_id.keyword": meta_id}} # Many systems use meta _id as receipt_id
+        ]
+        if receipt_id:
+            should_clauses.append({"term": {"receipt_id.keyword": receipt_id}})
+        if file_id:
+            should_clauses.append({"term": {"file_id.keyword": file_id}})
+            should_clauses.append({"term": {"receipt_id.keyword": file_id}}) # Fallback
+
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"user_id.keyword": user_id}}
+                    ],
+                    "should": should_clauses,
+                    "minimum_should_match": 1
+                }
+            }
+        }
+        try:
+            await self.es.delete_by_query(index=self.index, body=query, refresh=True)
+            log_to_elastic("INFO", f"Scrubbed ES data for {meta_id}/{receipt_id}/{file_id}", "InsightsDashboard")
+        except Exception as e:
+            log_to_elastic("ERROR", f"Failed ES scrub: {e}", "InsightsDashboard")
+
+    async def delete_by_receipt_id(self, user_id: str, receipt_id: str):
+        # Keep for backward compatibility or direct calls
+        await self.scrub_receipt_data(user_id, receipt_id, receipt_id, receipt_id)

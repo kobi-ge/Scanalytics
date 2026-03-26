@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Loader2,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 import "../App.css";
 
@@ -92,6 +93,20 @@ export default function Dashboard() {
       alert(msg);
     } finally {
       setSearchLoading(false);
+    }
+  };
+  
+  const handleDelete = async (receiptId) => {
+    if (window.confirm("Are you sure you want to delete this file? This action cannot be undone.")) {
+      const success = await useStore.getState().deleteReceipt(receiptId);
+      if (success) {
+        // If it was a search result, remove it from the list
+        if (searchResults) {
+          setSearchResults(searchResults.filter(r => (r._id || r.receipt_id) !== receiptId));
+        }
+      } else {
+        alert("Failed to delete receipt");
+      }
     }
   };
 
@@ -284,15 +299,24 @@ export default function Dashboard() {
                         Items
                       </p>
                     </div>
-                    <div className="text-right flex flex-col items-end gap-2">
-                      <p className="text-2xl font-black text-[#0f1924] italic">
-                        ${receipt.total_price}
-                      </p>
+                    <div className="text-right flex items-center gap-4">
+                      <div className="flex flex-col items-end gap-2">
+                        <p className="text-2xl font-black text-[#0f1924] italic">
+                          ${receipt.total_price}
+                        </p>
+                        <button
+                          onClick={() => setSelectedReceipt(receipt)}
+                          className="flex items-center gap-1 text-[10px] font-black text-[#c7ae75] underline uppercase hover:tracking-widest transition-all"
+                        >
+                          View Details <ChevronRight size={14} />
+                        </button>
+                      </div>
                       <button
-                        onClick={() => setSelectedReceipt(receipt)}
-                        className="flex items-center gap-1 text-[10px] font-black text-[#c7ae75] underline uppercase hover:tracking-widest transition-all"
+                        onClick={() => handleDelete(receipt._id || receipt.receipt_id)}
+                        className="p-3 text-red-200 hover:text-red-500 hover:bg-red-50 rounded-full transition-all border border-transparent hover:border-red-100"
+                        title="Delete file and metadata"
                       >
-                        View Details <ChevronRight size={14} />
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </div>
@@ -342,11 +366,23 @@ export default function Dashboard() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 </div>
-                <div className="p-5 bg-[#0f1924] text-[#c7ae75] font-black text-xs uppercase tracking-widest flex justify-between items-center">
+                <div className="p-5 bg-[#0f1924] text-[#c7ae75] font-black text-xs uppercase tracking-widest flex justify-between items-center group/footer">
                   <span className="truncate">
                     {img.filename || `Receipt #${idx + 1}`}
                   </span>
-                  <Receipt size={16} className="opacity-50" />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(img.file_id || img._id);
+                      }}
+                      className="p-2 text-[#c7ae75]/30 hover:text-red-400 hover:bg-white/5 rounded-full transition-all"
+                      title="Delete receipt"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <Receipt size={16} className="opacity-50" />
+                  </div>
                 </div>
               </div>
             ))}
