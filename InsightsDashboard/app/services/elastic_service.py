@@ -259,10 +259,10 @@ class ElasticService:
                     "global": {},
                     "aggs": {
                         "global_avg_item_price": {"avg": {"field": "price"}},
-                        "price_percentiles": {
-                            "percentiles": {
-                                "field": "price",
-                                "percents": [float(i) for i in range(1, 100)]
+                        "user_averages": {
+                            "terms": {"field": "user_id.keyword", "size": 10000},
+                            "aggs": {
+                                "avg_price": {"avg": {"field": "price"}}
                             }
                         },
                         "global_categories": {
@@ -304,16 +304,14 @@ class ElasticService:
             else:
                 status = "You spend exactly the average"
                 
-            percentiles_values = global_stats.get("price_percentiles", {}).get("values", {})
-            sorted_items = sorted(
-                [(float(k), v) for k, v in percentiles_values.items() if v is not None and str(v).lower() != 'nan']
-            )
-            
-            rank = 100
-            for p, v in sorted_items:
-                if user_avg <= v:
-                    rank = int(p)
-                    break
+            # חישוב אחוזון על בסיס ממוצעי משתמשים (User-to-User)
+            user_avg_buckets = global_stats.get("user_averages", {}).get("buckets", [])
+            all_user_avgs = [b["avg_price"]["value"] for b in user_avg_buckets if b["avg_price"]["value"] is not None]
+            rank = 0
+            if all_user_avgs:
+                # ספירת משתמשים שהוצאותיהם נמוכות מהמשתמש הנוכחי
+                lower_than = sum(1 for avg in all_user_avgs if avg < user_avg)
+                rank = int((lower_than / len(all_user_avgs)) * 100)
             
             result = {
                 "user_avg_item_price": round(user_avg, 2),

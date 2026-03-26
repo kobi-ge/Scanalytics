@@ -33,7 +33,7 @@ export default function ReceiptCard({ receipt }) {
         </div>
         <div className="relative z-10 text-left">
           <span className="text-3xl font-black text-white italic">
-            ₪{receipt.total_price}
+            ${receipt.total_price}
           </span>
         </div>
       </div>

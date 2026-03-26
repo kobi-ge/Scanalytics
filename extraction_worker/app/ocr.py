@@ -20,6 +20,9 @@ def parse_to_json(image_bytes):
     - Dates must be YYYY-MM-DD.
     - Prices and quantities must be numbers (float/int).
     - Category must be ONE of: "Fashion & Apparel", "Home & Furniture", "Health & Beauty", "Leisure & Hobbies", "Food & Groceries", "Electronics & Gadgets", "General".
+    - payment_method must be normalized to either "Visa" or "Cash".
+    - "Visa" should be used for any card payments (VISA, visa, Mastercard, Debit, Credit, Amex, Card, etc.).
+    - "Cash" should be used for cash payments (Cash, cash, Money, money).
     
     Format:
     {
