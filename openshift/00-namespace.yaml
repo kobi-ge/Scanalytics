@@ -1,8 +1,0 @@
-## On OpenShift Sandbox, your namespace (project) is pre-assigned.
-## This file is kept for documentation. The deploy.sh script skips it.
-# apiVersion: v1
-# kind: Namespace
-# metadata:
-#   name: yosefshoval-dev
-#   labels:
-#     app.kubernetes.io/part-of: scanalytics
