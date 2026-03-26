@@ -119,7 +119,16 @@ async def get_receipt_images(
         
         if file_data:
             file_data["file_id"] = fid
-            file_data["items"] = receipt_data.get("items", []) if receipt_data else []
+            if receipt_data:
+                file_data.update({
+                    "items": receipt_data.get("items", []),
+                    "store": receipt_data.get("store"),
+                    "purchase_date": receipt_data.get("purchase_date"),
+                    "total_price": receipt_data.get("total_price"),
+                    "payment_method": receipt_data.get("payment_method"),
+                })
+            else:
+                file_data["items"] = []
             images.append(file_data)
 
     if not images:
@@ -132,7 +141,11 @@ async def get_receipt_images(
             "filename": img["filename"],
             "content_type": img["content_type"],
             "data_base64": base64.b64encode(img["data"]).decode("utf-8"),
-            "items": img["items"]
+            "items": img.get("items", []),
+            "store": img.get("store"),
+            "purchase_date": img.get("purchase_date"),
+            "total_price": img.get("total_price"),
+            "payment_method": img.get("payment_method"),
         }
         for img in images
     ]

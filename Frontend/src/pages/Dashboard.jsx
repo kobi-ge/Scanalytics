@@ -119,7 +119,7 @@ export default function Dashboard() {
             Total Expenses
           </p>
           <span className="text-4xl md:text-5xl font-black tracking-tighter">
-            ₪ {totalSpending}
+            $ {totalSpending}
           </span>
         </div>
       </div>
@@ -286,7 +286,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-right flex flex-col items-end gap-2">
                       <p className="text-2xl font-black text-[#0f1924] italic">
-                        ₪{receipt.total_price}
+                        ${receipt.total_price}
                       </p>
                       <button
                         onClick={() => setSelectedReceipt(receipt)}
@@ -404,7 +404,7 @@ export default function Dashboard() {
                           {item.quantity}
                         </td>
                         <td className="py-5 text-right font-black text-[#0f1924] italic">
-                          ₪{item.price}
+                          ${item.price}
                         </td>
                       </tr>
                     ))}
@@ -423,7 +423,7 @@ export default function Dashboard() {
                   Total Price
                 </span>
                 <span className="text-3xl">
-                  ₪{selectedReceipt.total_price || 0}
+                  ${selectedReceipt.total_price || 0}
                 </span>
               </div>
               <button
