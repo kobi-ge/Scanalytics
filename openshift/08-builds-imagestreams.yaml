@@ -265,6 +265,8 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: VITE_INSIGHTS_API_URL
+            - name: INSIGHTS_DASHBOARD_HOST
+              value: insights-dashboard
   triggers:
     - type: ConfigChange
     - type: ImageChange

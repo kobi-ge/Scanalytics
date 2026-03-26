@@ -3,10 +3,12 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 
 // ה-proxy של Vite רץ בתוך container של `frontend` ולכן הוא צריך להגיע לשירות הנכון בתוך הקלאסטר.
-// ב-docker-compose השירות נקרא `insights_dashboard`, בעוד שב-OpenShift ה-Service נקרא `insights-dashboard`.
+// ב-OpenShift: `VITE_INSIGHTS_API_URL` מוגדר כ-`/insights` (כלומר משתמשים ב-proxy).
+// ב-docker-compose: ברירת המחדל היא URL מלא ל-`http://localhost:8001` (ולכן ה-proxy לא רלוונטי).
+const isInsightsProxyMode = (process.env.VITE_INSIGHTS_API_URL || "").startsWith("/");
 const insightsDashboardHost =
   process.env.INSIGHTS_DASHBOARD_HOST ||
-  (process.env.KUBERNETES_SERVICE_HOST ? "insights-dashboard" : "insights_dashboard");
+  (isInsightsProxyMode ? "insights-dashboard" : "insights_dashboard");
 
 // https://vite.dev/config/
 export default defineConfig({
