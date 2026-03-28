@@ -3,6 +3,21 @@ networks:
     driver: bridge
 
 services:
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    ports:
+      - '80:80'    # כניסת HTTP (להפניה ל-HTTPS)
+      - '443:443'  # כניסת HTTPS
+      - '81:81'    # ממשק הניהול של הפרוקסי
+    volumes:
+      - ./npm_data:/data
+      - ./npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - microservices-net
+    restart: always
+
+
   kafka:
     image: confluentinc/cp-kafka:7.8.3
     hostname: kafka
