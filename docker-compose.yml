@@ -150,8 +150,7 @@ services:
   api-gateway:
     build: ./api_gateway
     container_name: api-gateway
-    ports:
-      - "8000:8000"
+
     environment:
       - MONGO_URI=mongodb://mongodb:27017
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -189,8 +188,7 @@ services:
   insights_dashboard:
     build: ./InsightsDashboard
     container_name: InsightsDashboard
-    ports:
-      - "8001:8001"
+
     environment:
       - ES_HOST=http://elasticsearch:9200
       - ES_INDEX=receipt_items
@@ -208,8 +206,7 @@ services:
   backend:
     build: ./backend
     container_name: backend
-    ports:
-      - "3000:3000"
+
     environment:
       - MONGO_URI=mongodb://mongodb:27017/scanalytics_db
     networks:
@@ -221,8 +218,7 @@ services:
   frontend:
     build: ./Frontend
     container_name: frontend
-    ports:
-      - "5173:5173"
+
     environment:
       - VITE_AUTH_API_URL=http://scanalytics.duckdns.org/api/auth
       - VITE_INGESTION_API_URL=http://scanalytics.duckdns.org/api/ingestion
