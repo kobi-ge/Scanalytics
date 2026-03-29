@@ -22,9 +22,9 @@ services:
     image: confluentinc/cp-kafka:7.8.3
     hostname: kafka
     container_name: kafka
-    ports:
-      - "9092:9092"
-      - "29092:29092"
+    # ports:
+    #   - "9092:9092"
+    #   - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
@@ -63,8 +63,8 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -77,8 +77,8 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: mongodb
-    ports:
-      - "27017:27017"
+    # ports:
+    #   - "27017:27017"
     networks:
       - microservices-net
     volumes:
@@ -98,9 +98,9 @@ services:
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
     networks:
       - microservices-net
     volumes:
@@ -220,9 +220,9 @@ services:
     container_name: frontend
 
     environment:
-      - VITE_AUTH_API_URL=http://scanalytics.duckdns.org/api/auth
-      - VITE_INGESTION_API_URL=http://scanalytics.duckdns.org/api/ingestion
-      - VITE_INSIGHTS_API_URL=http://scanalytics.duckdns.org/api/insights
+      - VITE_AUTH_API_URL=https://scanalytics.duckdns.org/api/auth
+      - VITE_INGESTION_API_URL=https://scanalytics.duckdns.org/api/ingestion
+      - VITE_INSIGHTS_API_URL=https://scanalytics.duckdns.org/api/insights
     networks:
       - microservices-net
     depends_on:
