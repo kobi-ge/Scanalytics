@@ -224,9 +224,9 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_AUTH_API_URL=http://scanalytics.duckdns.org:3000/api
-      - VITE_INGESTION_API_URL=http://scanalytics.duckdns.org:8000
-      - VITE_INSIGHTS_API_URL=http://scanalytics.duckdns.org:8001
+      - VITE_AUTH_API_URL=http://scanalytics.duckdns.org/api/auth
+      - VITE_INGESTION_API_URL=http://scanalytics.duckdns.org/api/ingestion
+      - VITE_INSIGHTS_API_URL=http://scanalytics.duckdns.org/api/insights
     networks:
       - microservices-net
     depends_on:
