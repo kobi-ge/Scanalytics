@@ -221,8 +221,8 @@ services:
 
     environment:
       - VITE_AUTH_API_URL=https://scanalytics.duckdns.org/api
-      - VITE_INGESTION_API_URL=https://scanalytics.duckdns.org/api
-      - VITE_INSIGHTS_API_URL=https://scanalytics.duckdns.org/api
+      - VITE_INGESTION_API_URL=https://scanalytics.duckdns.org/api/ingestion
+      - VITE_INSIGHTS_API_URL=https://scanalytics.duckdns.org/api/insights
     networks:
       - microservices-net
     depends_on:
