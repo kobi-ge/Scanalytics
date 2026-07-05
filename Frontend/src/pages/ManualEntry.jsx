@@ -58,7 +58,8 @@ export default function ManualEntry() {
     };
     try {
       // שליחה לשרת הפייתון (Port 8000)
-      await ingestionApi.post("/manual-entry", payload);
+      // axios.post(`${import.meta.env.VITE_INGESTION_API_URL}/manual-entry`, data)
+      await ingestionApi.post(`${import.meta.env.VITE_INGESTION_API_URL}/manual-entry`, payload);
       setProcessing(true);
       alert("הנתונים נשלחו בהצלחה!");
       navigate("/");
