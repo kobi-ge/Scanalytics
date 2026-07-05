@@ -32,13 +32,13 @@ export const useStore = create((set, get) => ({
     set({ isFetchingInsights: true });
     try {
       const [recRes, benchRes, catRes, trendRes, storeRes, payRes, spendRes] = await Promise.all([
-        insightsApi.get("/receipts/recent"),
-        insightsApi.get("/stats/user-benchmark"),
-        insightsApi.get("/stats/category-distribution"),
-        insightsApi.get("/stats/monthly-trends"),
-        insightsApi.get("/stats/top-stores"),
-        insightsApi.get("/stats/payment-methods"),
-        insightsApi.get("/stats/spending-by-month-and-store")
+        insightsApi.get('/insights/receipts/recent'),
+        insightsApi.get('/insights/stats/user-benchmark'),
+        insightsApi.get('/insights/stats/category-distribution'),
+        insightsApi.get('/insights/stats/monthly-trends'),
+        insightsApi.get('/insights/stats/top-stores'),
+        insightsApi.get('/insights/stats/payment-methods'),
+        insightsApi.get('/insights/stats/spending-by-month-and-store')
       ]);
       set({ 
         receipts: recRes.data.items || [],

@@ -16,7 +16,7 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const response = await api.post("/auth/login", formData);
+      const response = await api.post("/backend/auth/login", formData);
       localStorage.setItem("token", response.data.token);
       setUser(response.data.user);
       useStore.getState().fetchInsightsData();

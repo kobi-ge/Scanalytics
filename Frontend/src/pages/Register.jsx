@@ -17,8 +17,7 @@ export default function Register() {
     setError('');
     
     try {
-      // הנתיב המדויק בשרת של השותף
-      const response = await api.post('/auth/register', formData);
+      const response = await api.post('/backend/auth/register', formData);
       
       // שמירת הטוקן ועדכון המשתמש בסטייט
       localStorage.setItem('token', response.data.token);

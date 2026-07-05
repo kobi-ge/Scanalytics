@@ -20,7 +20,7 @@ export default function UploadReceipt() {
         formData.append("user_id", user._id);
 
         try {
-            const response = await ingestionApi.post("/upload-receipt", formData, {
+            const response = await ingestionApi.post("/ingestion/upload-receipt", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             alert("הקבלה נשלחה בהצלחה: " + response.data.message);

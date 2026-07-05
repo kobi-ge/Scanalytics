@@ -140,13 +140,15 @@ services:
   api-gateway:
     build: ./api_gateway
     container_name: api-gateway
+    ports:
+      - "8000:8000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      # כאן ה-Gateway יכול לנתב פנימית לסרוויסים לפי השם שלהם בדוקר:
       - BACKEND_SERVICE_URL=http://backend:3000
-      - INSIGHTS_SERVICE_URL=http://insights_dashboard:5000 
+      - INSIGHTS_SERVICE_URL=http://insights_dashboard:8001
+      - FRONTEND_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://frontend:5173
     networks:
       - microservices-net
     depends_on:
@@ -209,10 +211,7 @@ services:
     build: ./Frontend
     container_name: frontend
     environment:
-      # הדפדפן של המשתמש יפנה לכתובת הציבורית של ה-API המאובטח בקלאודפלר
-      - VITE_AUTH_API_URL=https://api.scforensics.com/api
-      - VITE_INGESTION_API_URL=https://api.scforensics.com/api/ingestion
-      - VITE_INSIGHTS_API_URL=https://api.scforensics.com/api/insights
+      - VITE_API_BASE_URL=/api
     networks:
       - microservices-net
     depends_on:

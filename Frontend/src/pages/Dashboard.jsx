@@ -47,7 +47,7 @@ export default function Dashboard() {
       setLoadingImages(true);
       setImageError(null);
       try {
-        const res = await insightsApi.get("/receipts/images");
+        const res = await insightsApi.get('/insights/receipts/images');
         if (res.data?.images) {
           setImages(res.data.images);
         } else {
@@ -70,7 +70,7 @@ export default function Dashboard() {
     e.preventDefault();
     setSearchLoading(true);
     try {
-      const response = await insightsApi.get("/receipts/search", {
+      const response = await insightsApi.get('/insights/receipts/search', {
         params: {
           category: searchParams.category,
           store: searchParams.store,

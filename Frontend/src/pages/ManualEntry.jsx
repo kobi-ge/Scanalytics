@@ -57,9 +57,7 @@ export default function ManualEntry() {
       user_id: user._id, // הצמדת ה-ID לנתונים
     };
     try {
-      // שליחה לשרת הפייתון (Port 8000)
-      // axios.post(`${import.meta.env.VITE_INGESTION_API_URL}/manual-entry`, data)
-      await ingestionApi.post(`${import.meta.env.VITE_INGESTION_API_URL}/manual-entry`, payload);
+      await ingestionApi.post('/ingestion/manual-entry', payload);
       setProcessing(true);
       alert("הנתונים נשלחו בהצלחה!");
       navigate("/");
