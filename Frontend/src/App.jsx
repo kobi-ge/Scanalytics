@@ -27,7 +27,7 @@ export default function App() {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const response = await api.get("/users/me");
+          const response = await api.get("/backend/users/me");
           setUser(response.data);
           useStore.getState().fetchInsightsData();
         } catch (err) {

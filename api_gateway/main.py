@@ -1,9 +1,8 @@
 import os
-from typing import Any
 
 import httpx
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
@@ -61,9 +60,11 @@ async def proxy_request(
         }
     }
 
-    forwarded_headers["x-forwarded-for"] = request.client.host if request.client else "unknown"
+    forwarded_headers["x-forwarded-for"] = (
+        request.headers.get("x-forwarded-for") or (request.client.host if request.client else "unknown")
+    )
     forwarded_headers["x-forwarded-proto"] = request.url.scheme
-    forwarded_headers["x-forwarded-host"] = request.headers.get("host", request.base_url.host)
+    forwarded_headers["x-forwarded-host"] = request.headers.get("host") or request.url.netloc or "unknown"
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=30.0)) as client:
         response = await client.request(
