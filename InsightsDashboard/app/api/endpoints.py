@@ -108,7 +108,7 @@ async def get_receipt_images(
     )
 
     if not file_docs:
-        raise HTTPException(status_code=404, detail="No receipt images found for this user")
+        return {"images": [], "count": 0}
 
     # 2. Fetch binary image data and associated receipt metadata
     images = []
@@ -132,7 +132,7 @@ async def get_receipt_images(
             images.append(file_data)
 
     if not images:
-        raise HTTPException(status_code=404, detail="Image files not found in GridFS")
+        return {"images": [], "count": 0}
 
     # 3. Return all as base64 JSON (consistent format for the frontend)
     result = [
