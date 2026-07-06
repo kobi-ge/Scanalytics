@@ -9,7 +9,9 @@ class Settings(BaseSettings):
     mongo_uri: str = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
     mongo_db_name: str = os.getenv("MONGO_DB_NAME", "metadata_db")
     
-    elasticsearch_url: str = os.getenv("ELASTICSEARCH_URL", "http://elasticsearch:9200")
+    # Accept either ELASTICSEARCH_URL or ES_HOST for compatibility
+    elasticsearch_url: str = os.getenv("ELASTICSEARCH_URL", os.getenv("ES_HOST", "http://elasticsearch:9200"))
+    ES_INDEX: str = os.getenv("ES_INDEX", "receipt_items")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

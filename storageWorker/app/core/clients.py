@@ -39,9 +39,11 @@ class ClientsManager:
         while True:
             try:
                 if await self.es_client.ping():
-                    log_to_elastic("INFO", "Connected to Elasticsearch successfully.", "storageWorker")
-                    if not await self.es_client.indices.exists(index="receipt_items"):
-                        await self.es_client.indices.create(index="receipt_items")
+                    log_to_elastic("INFO", f"Connected to Elasticsearch at {settings.elasticsearch_url} successfully.", "storageWorker")
+                    # Ensure the configured index exists (use setting if present)
+                    es_index = getattr(settings, 'ES_INDEX', 'receipt_items') if hasattr(settings, 'ES_INDEX') else 'receipt_items'
+                    if not await self.es_client.indices.exists(index=es_index):
+                        await self.es_client.indices.create(index=es_index)
                     break
                 else:
                     log_to_elastic("ERROR", "Failed to connect to Elasticsearch (ping returned False). Retrying in 5 seconds...", "storageWorker")

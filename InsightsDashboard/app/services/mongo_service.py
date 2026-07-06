@@ -15,6 +15,7 @@ class MongoService:
     def __init__(self):
         self.client = AsyncIOMotorClient(settings.MONGO_URI)
         self.metadata_db = self.client[settings.MONGO_METADATA_DB]
+        self.scan_db = self.client["scanalytics_db"]
         self.gridfs_bucket = AsyncIOMotorGridFSBucket(self.client[settings.GRIDFS_DB_NAME])
 
     async def find_recent_files_by_user(self, user_id: str, limit: int = 5) -> list:
@@ -49,6 +50,12 @@ class MongoService:
             receipt = await self.metadata_db.receipts.find_one({"file_id": file_id})
             if receipt:
                 receipt["_id"] = str(receipt["_id"])
+                return receipt
+
+            # Fallback lookup if metadata_db has no receipt document.
+            receipt = await self.scan_db.scans.find_one({"file_id": file_id})
+            if receipt:
+                receipt["_id"] = str(receipt["_id"])
             return receipt
         except Exception as e:
             log_to_elastic("ERROR", f"Failed to fetch receipt for file_id {file_id}: {e}", "InsightsDashboard")
@@ -64,6 +71,14 @@ class MongoService:
         
         try:
             cursor = self.metadata_db.receipts.find(query).sort("purchase_date", -1)
+            receipts = await cursor.to_list(length=100)
+            if receipts:
+                for r in receipts:
+                    r["_id"] = str(r["_id"])
+                return receipts
+
+            # Fallback to scanalytics_db.scans when metadata_db returns no receipts.
+            cursor = self.scan_db.scans.find(query).sort("purchase_date", -1)
             receipts = await cursor.to_list(length=100)
             for r in receipts:
                 r["_id"] = str(r["_id"])

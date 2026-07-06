@@ -8,8 +8,9 @@ load_dotenv()
 
 class KafkaConsumer:
     def __init__(self, logger):
+        # Ensure a sensible default when running in Docker Compose
         self.config = {
-        "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS"),
+        "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", os.getenv("KAFKA_BOOTSTRAP_SERVER", "kafka:9092")),
         "group.id": "team-attack",
         "auto.offset.reset": "earliest"
     }

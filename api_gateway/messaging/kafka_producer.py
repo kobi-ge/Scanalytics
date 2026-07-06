@@ -5,7 +5,8 @@ import json
 class KafkaProducerHelper:
     def __init__(self, bootstrap_servers=None):
         if bootstrap_servers is None:
-            bootstrap_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092")
+            # In containerized deployments the broker is reachable at kafka:9092
+            bootstrap_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", os.getenv("KAFKA_BOOTSTRAP_SERVER", "kafka:9092"))
         self.producer = Producer({'bootstrap.servers': bootstrap_servers})
 
     def send_message(self, topic: str, message: dict):

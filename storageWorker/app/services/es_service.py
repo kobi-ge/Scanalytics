@@ -5,6 +5,7 @@ from elasticsearch import AsyncElasticsearch, helpers
 class ElasticsearchService:
     def __init__(self, es_client: AsyncElasticsearch):
         self.es_client = es_client
+        self.es_index = getattr(es_client, "index_name", "receipt_items")
 
     async def save_receipt_items(self, user_id: str, receipt_id: str, data: dict, file_id: str = None):
         items = data.get("items", [])
@@ -24,7 +25,7 @@ class ElasticsearchService:
             
             actions.append({
                 "_op_type": "index",
-                "_index": "receipt_items",
+                "_index": self.es_index,
                 "_id": doc_id,
                 "_source": doc
             })
