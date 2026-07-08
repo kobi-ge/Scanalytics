@@ -28,7 +28,7 @@ export default function Navbar() {
           {/* תפריט דסקטופ (נשאר בדיוק כפי שהיה) */}
           <div className="hidden md:flex gap-6 text-[#c7ae75] font-medium">
             <Link to="/" className="hover:text-[#ffffff] transition-colors">
-              דשבורד
+              דף הבית
             </Link>
             <Link
               to="/statistics"
@@ -37,16 +37,10 @@ export default function Navbar() {
               סטטיסטיקות
             </Link>
             <Link
-              to="/upload"
+              to="/receipts"
               className="hover:text-[#ffffff] transition-colors"
             >
-              סריקת קבלה
-            </Link>
-            <Link
-              to="/manual"
-              className="hover:text-[#ffffff] transition-colors"
-            >
-              הזנה ידנית
+              קבלות
             </Link>
           </div>
         </div>
@@ -88,7 +82,7 @@ export default function Navbar() {
               onClick={closeMenu}
               className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
             >
-              דשבורד
+              דף הבית
             </Link>
             <Link
               to="/statistics"
@@ -98,18 +92,11 @@ export default function Navbar() {
               סטטיסטיקות
             </Link>
             <Link
-              to="/upload"
+              to="/receipts"
               onClick={closeMenu}
               className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
             >
-              סריקת קבלה
-            </Link>
-            <Link
-              to="/manual"
-              onClick={closeMenu}
-              className="text-[#c7ae75] hover:text-white font-bold py-2 border-b border-white/5"
-            >
-              הזנה ידנית
+              קבלות
             </Link>
 
             <div className="pt-4 border-t border-[#c7ae75]/20">

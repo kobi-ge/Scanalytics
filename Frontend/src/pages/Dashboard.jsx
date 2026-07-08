@@ -15,15 +15,15 @@ import {
 } from "lucide-react";
 import "../App.css";
 
-// הקטגוריות המוגדרות מראש
 const CATEGORIES = [
-  "General",
-  "Fashion & Apparel",
-  "Home & Furniture",
-  "Health & Beauty",
-  "Leisure & Hobbies",
-  "Food & Groceries",
-  "Electronics & Gadgets",
+  { value: "", label: "הכל" },
+  { value: "General", label: "כללי" },
+  { value: "Fashion & Apparel", label: "אופנה ובגדים" },
+  { value: "Home & Furniture", label: "בית ורהיטים" },
+  { value: "Health & Beauty", label: "בריאות ויופי" },
+  { value: "Leisure & Hobbies", label: "בילוי ותחביבים" },
+  { value: "Food & Groceries", label: "מזון ומצרכים" },
+  { value: "Electronics & Gadgets", label: "אלקטרוניקה" },
 ];
 
 export default function Dashboard() {
@@ -47,17 +47,13 @@ export default function Dashboard() {
       setLoadingImages(true);
       setImageError(null);
       try {
-        const res = await insightsApi.get('/insights/receipts/images');
-        if (res.data?.images) {
-          setImages(res.data.images);
-        } else {
-          setImages([]);
-        }
+        const res = await insightsApi.get("/insights/receipts/images");
+        setImages(res.data?.images || []);
       } catch (err) {
         if (err.response?.status === 404) {
           setImages([]);
         } else {
-          setImageError("Error loading receipt images");
+          setImageError("לא ניתן לטעון את הקבלות כרגע");
         }
       } finally {
         setLoadingImages(false);
@@ -70,7 +66,7 @@ export default function Dashboard() {
     e.preventDefault();
     setSearchLoading(true);
     try {
-      const response = await insightsApi.get('/insights/receipts/search', {
+      const response = await insightsApi.get("/insights/receipts/search", {
         params: {
           category: searchParams.category,
           store: searchParams.store,
@@ -88,153 +84,128 @@ export default function Dashboard() {
         setSearchResults(response.data.items);
       }
     } catch (err) {
-      const msg = err.response?.data?.detail || "Search failed";
+      const msg = err.response?.data?.detail || "החיפוש נכשל";
       alert(msg);
     } finally {
       setSearchLoading(false);
     }
   };
 
-  const totalSpending =
-    stats.benchmark?.user_total_spending?.toLocaleString() || 0;
+  const totalSpending = stats?.benchmark?.user_total_spending?.toLocaleString() || 0;
 
   return (
-    <div
-      className="max-w-6xl mx-auto space-y-8 px-4 md:px-0 animate-in fade-in duration-500"
-      dir="ltr"
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-gradient-to-r from-[#967f4a] to-[#c4ad7a] p-8 md:p-10 rounded-[40px] text-white shadow-2xl border-l-[12px] border-[#0f1924] relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-[#c7ae75]/5 rounded-full -ml-32 -mt-32 blur-3xl"></div>
-        <div className="relative z-10 text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-black italic tracking-tighter">
-            Welcome, {user?.fullName}!
-          </h1>
-          <p className="text-[#0f1924] font-medium mt-2 opacity-90">
-            Your financial overview and purchases at a glance.
-          </p>
-        </div>
-        <div className="relative z-10 text-center md:text-right bg-white/8 p-6 rounded-3xl backdrop-blur-md border border-[#c7ae75]/20 min-w-[200px]">
-          <p className="text-[20px] text-[#0f1924] font-black uppercase tracking-widest mb-1">
-            Total Expenses
-          </p>
-          <span className="text-4xl md:text-5xl font-black tracking-tighter">
-            $ {totalSpending}
-          </span>
+    <div className="mx-auto max-w-6xl space-y-8 px-4 md:px-0" dir="rtl">
+      <div className="relative overflow-hidden rounded-[40px] border-l-[12px] border-[#0f1924] bg-gradient-to-r from-[#967f4a] to-[#c4ad7a] p-8 text-white shadow-2xl md:p-10">
+        <div className="absolute left-0 top-0 -mt-32 -ml-32 h-64 w-64 rounded-full bg-[#c7ae75]/5 blur-3xl"></div>
+        <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="text-center md:text-right">
+            <h1 className="text-3xl font-black tracking-tighter md:text-4xl">
+              ברוך הבא, {user?.fullName}!
+            </h1>
+            <p className="mt-2 text-sm font-medium text-[#0f1924] opacity-90">
+              סיכום מהיר של ההוצאות והקבלות שלך.
+            </p>
+          </div>
+          <div className="min-w-[220px] rounded-3xl border border-[#c7ae75]/20 bg-white/10 p-6 text-center backdrop-blur-md md:text-right">
+            <p className="mb-1 text-[16px] font-black uppercase tracking-[0.3em] text-[#0f1924]">
+              סה"כ הוצאות
+            </p>
+            <span className="text-4xl font-black tracking-tighter md:text-5xl">
+              ₪ {totalSpending}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid gap-4 md:grid-cols-4">
         <Link
-          to="/upload"
-          className="flex flex-col items-center p-6 bg-white border border-[#c7ae75]/10 rounded-3xl hover:border-[#c7ae75] hover:shadow-xl transition group"
+          to="/receipts"
+          className="flex flex-col items-center rounded-3xl border border-[#c7ae75]/10 bg-white p-6 transition hover:border-[#c7ae75] hover:shadow-xl"
         >
-          <span className="text-3xl mb-2 group-hover:scale-110 transition">
-            📸
-          </span>
-          <span className="font-black text-[#0f1924] text-xs uppercase tracking-widest">
-            Scan Receipt
+          <span className="mb-2 text-3xl transition group-hover:scale-110">📸</span>
+          <span className="text-xs font-black uppercase tracking-[0.3em] text-[#0f1924]">
+            סריקת קבלה
           </span>
         </Link>
         <Link
-          to="/manual"
-          className="flex flex-col items-center p-6 bg-white border border-[#c7ae75]/10 rounded-3xl hover:border-[#c7ae75] hover:shadow-xl transition group"
+          to="/receipts"
+          className="flex flex-col items-center rounded-3xl border border-[#c7ae75]/10 bg-white p-6 transition hover:border-[#c7ae75] hover:shadow-xl"
         >
-          <span className="text-3xl mb-2 group-hover:scale-110 transition">
-            ✍️
-          </span>
-          <span className="font-black text-[#0f1924] text-xs uppercase tracking-widest">
-            Manual Entry
+          <span className="mb-2 text-3xl transition group-hover:scale-110">✍️</span>
+          <span className="text-xs font-black uppercase tracking-[0.3em] text-[#0f1924]">
+            הזנה ידנית
           </span>
         </Link>
         <Link
           to="/statistics"
-          className="flex flex-col items-center p-6 bg-white border border-[#c7ae75]/10 rounded-3xl hover:border-[#c7ae75] hover:shadow-xl transition group"
+          className="flex flex-col items-center rounded-3xl border border-[#c7ae75]/10 bg-white p-6 transition hover:border-[#c7ae75] hover:shadow-xl"
         >
-          <span className="text-3xl mb-2 group-hover:scale-110 transition">
-            📊
-          </span>
-          <span className="font-black text-[#0f1924] text-xs uppercase tracking-widest">
-            Analytics
+          <span className="mb-2 text-3xl transition group-hover:scale-110">📊</span>
+          <span className="text-xs font-black uppercase tracking-[0.3em] text-[#0f1924]">
+            סטטיסטיקות
           </span>
         </Link>
-        <div className="flex flex-col items-center p-6 bg-[#0f1924] border border-[#c7ae75]/30 rounded-3xl text-[#c7ae75] shadow-lg shadow-[#0f1924]/20">
-          <span className="text-2xl mb-2 font-serif  text-[#c7ae75] font-black">
-            #
-          </span>
-          <span className="font-black text-[#c7ae75] text-xs uppercase tracking-widest">
-            {images.length} Receipts
+        <div className="flex flex-col items-center rounded-3xl border border-[#c7ae75]/30 bg-[#0f1924] p-6 text-[#c7ae75] shadow-lg shadow-[#0f1924]/20">
+          <span className="mb-2 text-2xl font-black text-[#c7ae75]">#</span>
+          <span className="text-xs font-black uppercase tracking-[0.3em] text-[#c7ae75]">
+            {images.length} קבלות
           </span>
         </div>
       </div>
 
-      {/* Search Section */}
-      <div className="bg-white p-8 rounded-[32px] shadow-xl border border-[#c7ae75]/10">
-        <h3 className="text-xl font-black text-[#0f1924] mb-6 flex items-center gap-2 border-l-4 border-[#c7ae75] pl-3">
-          Search Receipts
+      <div className="rounded-[32px] border border-[#c7ae75]/10 bg-white p-8 shadow-xl">
+        <h3 className="mb-6 flex items-center gap-2 border-r-4 border-[#c7ae75] pr-3 text-xl font-black text-[#0f1924]">
+          <Search size={20} />
+          חיפוש קבלות
         </h3>
-        <form
-          onSubmit={handleSearch}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-end"
-        >
+        <form onSubmit={handleSearch} className="grid gap-6 md:grid-cols-4 md:items-end">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              Category
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
+              קטגוריה
             </label>
-            <div className="relative group">
+            <div className="group relative">
               <select
-                className="w-full p-4 bg-gray-50 border border-gray-500 rounded-md focus:border-[#c7ae75] outline-none font-bold text-[#0f1924] appearance-none pr-12 transition-all cursor-pointer shadow-sm group-hover:bg-white"
+                className="w-full appearance-none rounded-md border border-gray-500 bg-gray-50 p-4 pr-12 font-bold text-[#0f1924] shadow-sm outline-none transition-all focus:border-[#c7ae75] group-hover:bg-white"
                 value={searchParams.category}
-                onChange={(e) =>
-                  setSearchParams({ ...searchParams, category: e.target.value })
-                }
+                onChange={(e) => setSearchParams({ ...searchParams, category: e.target.value })}
               >
-                <option value="">All Categories</option>
                 {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                  <option key={cat.value || "all"} value={cat.value}>
+                    {cat.label}
                   </option>
                 ))}
               </select>
-
-              {/* אייקון חץ זהב ממוקם בצורה מוחלטת */}
-              <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#c7ae75] group-hover:scale-110 transition-transform">
+              <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#c7ae75] transition-transform group-hover:scale-110">
                 <ChevronDown size={20} strokeWidth={3} />
               </div>
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              Store Name
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
+              שם חנות
             </label>
             <input
               type="text"
-              placeholder="e.g. Walmart"
-              className="w-full p-4 bg-gray-50 border border-gray-500 rounded-md focus:border-[#c7ae75] outline-none font-bold text-[#0f1924]"
+              placeholder="למשל: סופרמרקט"
+              className="w-full rounded-md border border-gray-500 bg-gray-50 p-4 font-bold text-[#0f1924] outline-none transition-all focus:border-[#c7ae75]"
               value={searchParams.store}
-              onChange={(e) =>
-                setSearchParams({ ...searchParams, store: e.target.value })
-              }
+              onChange={(e) => setSearchParams({ ...searchParams, store: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              Result Type
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
+              סוג תוצאה
             </label>
-            <div className="relative group">
+            <div className="group relative">
               <select
-                className="w-full p-4 bg-gray-50 border border-gray-500 rounded-md focus:border-[#c7ae75] outline-none font-bold text-[#0f1924] appearance-none pr-12 transition-all cursor-pointer"
+                className="w-full appearance-none rounded-md border border-gray-500 bg-gray-50 p-4 pr-12 font-bold text-[#0f1924] outline-none transition-all focus:border-[#c7ae75]"
                 value={searchParams.type}
-                onChange={(e) =>
-                  setSearchParams({ ...searchParams, type: e.target.value })
-                }
+                onChange={(e) => setSearchParams({ ...searchParams, type: e.target.value })}
               >
-                <option value="data">Data Analysis (List)</option>
-                <option value="physical">Physical Receipt (File)</option>
+                <option value="data">רשימת נתונים</option>
+                <option value="physical">קבלה פיזית</option>
               </select>
-
-              <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#c7ae75] group-hover:text-[#0f1924] transition-colors">
+              <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#c7ae75] transition-colors group-hover:text-[#0f1924]">
                 <ChevronDown size={20} strokeWidth={3} />
               </div>
             </div>
@@ -242,57 +213,48 @@ export default function Dashboard() {
           <button
             type="submit"
             disabled={searchLoading}
-            className="w-full bg-[#0f1924] text-[#c7ae75] p-4 rounded-2xl font-black uppercase tracking-widest hover:bg-[#c7ae75] hover:text-[#0f1924] transition shadow-lg disabled:opacity-50"
+            className="w-full rounded-2xl bg-[#0f1924] p-4 font-black uppercase tracking-[0.3em] text-[#c7ae75] shadow-lg transition hover:bg-[#c7ae75] hover:text-[#0f1924] disabled:opacity-50"
           >
-            {searchLoading ? "Searching..." : "Search"}
+            {searchLoading ? "מחפש..." : "חיפוש"}
           </button>
         </form>
       </div>
 
-      {/* Search Results Modal */}
       {searchResults && (
-        <div className="fixed inset-0 bg-[#0f1924]/80 backdrop-blur-lg z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-            <div className="bg-[#0f1924] p-8 flex justify-between items-center text-white border-b border-[#c7ae75]/20">
-              <h3 className="text-2xl font-black text-[#c7ae75] uppercase tracking-tighter">
-                Search Results
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0f1924]/80 p-4 backdrop-blur-lg">
+          <div className="flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-[40px] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#c7ae75]/20 bg-[#0f1924] p-8 text-white">
+              <h3 className="text-2xl font-black uppercase tracking-tighter text-[#c7ae75]">
+                תוצאות חיפוש
               </h3>
               <button
                 onClick={() => setSearchResults(null)}
-                className="text-[#c7ae75] hover:text-white bg-white/10 p-2 rounded-full transition-all border border-[#c7ae75]/30"
+                className="rounded-full border border-[#c7ae75]/30 bg-white/10 p-2 text-[#c7ae75] transition hover:text-white"
               >
                 <X size={24} />
               </button>
             </div>
-            <div className="p-8 overflow-y-auto flex-1 space-y-4 bg-gray-50/50">
+            <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50/50 p-8">
               {searchResults.length === 0 ? (
-                <p className="text-center text-[#0f1924]/40 font-bold py-10 italic">
-                  No receipts found matching your criteria.
+                <p className="py-10 text-center text-lg font-bold italic text-[#0f1924]/40">
+                  לא נמצאו קבלות התואמות את החיפוש.
                 </p>
               ) : (
                 searchResults.map((receipt, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-6 rounded-[24px] border border-[#c7ae75]/10 flex justify-between items-center gap-4 hover:shadow-md transition-shadow"
-                  >
+                  <div key={idx} className="flex items-center justify-between gap-4 rounded-[24px] border border-[#c7ae75]/10 bg-white p-6 transition hover:shadow-md">
                     <div>
-                      <p className="font-black text-[#0f1924] text-xl">
-                        {receipt.store}
-                      </p>
-                      <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                        {receipt.purchase_date} • {receipt.items?.length || 0}{" "}
-                        Items
+                      <p className="text-xl font-black text-[#0f1924]">{receipt.store}</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400">
+                        {receipt.purchase_date} • {receipt.items?.length || 0} פריטים
                       </p>
                     </div>
-                    <div className="text-right flex flex-col items-end gap-2">
-                      <p className="text-2xl font-black text-[#0f1924] italic">
-                        ${receipt.total_price}
-                      </p>
+                    <div className="flex flex-col items-end gap-2 text-right">
+                      <p className="text-2xl font-black italic text-[#0f1924]">₪{receipt.total_price}</p>
                       <button
                         onClick={() => setSelectedReceipt(receipt)}
-                        className="flex items-center gap-1 text-[10px] font-black text-[#c7ae75] underline uppercase hover:tracking-widest transition-all"
+                        className="flex items-center gap-1 text-[10px] font-black uppercase text-[#c7ae75] underline transition hover:tracking-widest"
                       >
-                        View Details <ChevronRight size={14} />
+                        לפרטים <ChevronRight size={14} />
                       </button>
                     </div>
                   </div>
@@ -303,48 +265,43 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Recent Receipts Grid */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-black text-[#0f1924] border-l-4 border-[#c7ae75] pl-3">
-          Recent Receipts
+        <h2 className="border-r-4 border-[#c7ae75] pr-3 text-2xl font-black text-[#0f1924]">
+          קבלות אחרונות
         </h2>
 
         {loadingImages || isFetchingInsights ? (
-          <div className="text-center p-20 text-[#0f1924]/30 font-black italic animate-pulse flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3 rounded-[32px] border border-dashed border-[#c7ae75]/20 bg-gray-50 p-20 text-center text-[#0f1924]/30">
             <Loader2 className="animate-spin" size={32} />
-            Loading encrypted data...
+            <span className="font-black italic">טוען נתונים מאובטחים...</span>
           </div>
         ) : imageError ? (
-          <div className="text-center p-10 text-red-400 font-bold bg-red-50 rounded-3xl border border-red-100">
+          <div className="rounded-3xl border border-red-100 bg-red-50 p-10 text-center font-bold text-red-400">
             {imageError}
           </div>
         ) : images.length === 0 ? (
-          <div className="text-center p-20 bg-gray-50 border-2 border-dashed border-[#c7ae75]/20 rounded-[40px]">
-            <p className="text-[#0f1924]/40 font-bold text-lg italic">
-              No receipts found in your vault.
-            </p>
-            <p className="text-[#0f1924]/30 text-sm mt-2 font-medium">
-              Scan your first receipt to see the magic happen.
-            </p>
+          <div className="rounded-[40px] border-2 border-dashed border-[#c7ae75]/20 bg-gray-50 p-20 text-center">
+            <p className="text-lg font-bold italic text-[#0f1924]/40">לא נמצאו קבלות במאגר שלך.</p>
+            <p className="mt-2 text-sm font-medium text-[#0f1924]/30">הוסף את הקבלה הראשונה ותראה את כל הנתונים כאן.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {images.map((img, idx) => (
               <div
                 key={idx}
                 onClick={() => setSelectedReceipt(img)}
-                className="bg-white rounded-[32px] shadow-lg border border-[#c7ae75]/10 overflow-hidden group hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2"
+                className="group cursor-pointer overflow-hidden rounded-[24px] border border-[#c7ae75]/10 bg-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl"
               >
-                <div className="h-64 bg-gray-50 flex items-center justify-center overflow-hidden">
+                <div className="flex h-44 items-center justify-center overflow-hidden bg-gray-50">
                   <img
                     src={`data:${img.content_type};base64,${img.data_base64}`}
                     alt={img.filename}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
-                <div className="p-5 bg-[#0f1924] text-[#c7ae75] font-black text-xs uppercase tracking-widest flex justify-between items-center">
-                  <span className="truncate">
-                    {img.filename || `Receipt #${idx + 1}`}
+                <div className="flex items-center justify-between bg-[#0f1924] p-4 text-[#c7ae75]">
+                  <span className="truncate text-xs font-black uppercase tracking-[0.2em]">
+                    {img.filename || `קבלה #${idx + 1}`}
                   </span>
                   <Receipt size={16} className="opacity-50" />
                 </div>
@@ -354,83 +311,69 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Item Modal - הועלה ל-z-[70] כדי שיופיע מעל החיפוש */}
       {selectedReceipt && (
-        <div className="fixed inset-0 bg-[#0f1924]/90 backdrop-blur-xl z-[70] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-[#c7ae75]/20">
-            <div className="bg-[#0f1924] p-10 text-white flex justify-between items-center relative">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#c7ae75]/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#0f1924]/90 p-4 backdrop-blur-xl">
+          <div className="w-full max-w-2xl overflow-hidden rounded-[40px] border border-[#c7ae75]/20 bg-white shadow-2xl">
+            <div className="relative flex items-center justify-between bg-[#0f1924] p-8 text-white">
+              <div className="absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-[#c7ae75]/5 blur-2xl"></div>
               <div className="relative z-10">
-                <h3 className="text-3xl font-black text-[#c7ae75] italic tracking-tighter">
-                  Receipt Details
+                <h3 className="text-3xl font-black tracking-tighter text-[#c7ae75]">
+                  פרטי קבלה
                 </h3>
-                <p className="text-[10px] opacity-50 uppercase font-bold tracking-[0.2em] mt-1">
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
                   {selectedReceipt.store || selectedReceipt.filename}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedReceipt(null)}
-                className="text-[#c7ae75] hover:text-white bg-white/10 p-3 rounded-full transition-all border border-[#c7ae75]/30 relative z-10"
+                className="relative z-10 rounded-full border border-[#c7ae75]/30 bg-white/10 p-3 text-[#c7ae75] transition hover:text-white"
               >
                 <X size={24} />
               </button>
             </div>
 
-            <div className="p-10 max-h-[60vh] overflow-y-auto">
+            <div className="max-h-[60vh] overflow-y-auto p-8">
               {selectedReceipt.items && selectedReceipt.items.length > 0 ? (
-                <table className="w-full text-left">
+                <table className="w-full text-right">
                   <thead>
-                    <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-[#c7ae75]/10">
-                      <th className="pb-4">Product Name</th>
-                      <th className="pb-4 text-center">Qty</th>
-                      <th className="pb-4 text-right">Price</th>
+                    <tr className="border-b border-[#c7ae75]/10 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">
+                      <th className="pb-4">שם מוצר</th>
+                      <th className="pb-4 text-center">כמות</th>
+                      <th className="pb-4">מחיר</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {selectedReceipt.items.map((item, idx) => (
-                      <tr
-                        key={idx}
-                        className="group hover:bg-gray-50 transition-colors"
-                      >
+                      <tr key={idx} className="transition hover:bg-gray-50">
                         <td className="py-5">
-                          <span className="block font-black text-[#0f1924]">
-                            {item.name}
-                          </span>
-                          <span className="text-[10px] text-[#c7ae75] font-black uppercase tracking-tighter">
+                          <span className="block font-black text-[#0f1924]">{item.name}</span>
+                          <span className="text-[10px] font-black uppercase tracking-tighter text-[#c7ae75]">
                             {item.category}
                           </span>
                         </td>
-                        <td className="py-5 text-center font-bold text-gray-400">
-                          {item.quantity}
-                        </td>
-                        <td className="py-5 text-right font-black text-[#0f1924] italic">
-                          ${item.price}
-                        </td>
+                        <td className="py-5 text-center font-bold text-gray-400">{item.quantity}</td>
+                        <td className="py-5 font-black text-[#0f1924]">₪{item.price}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <div className="text-center py-16 text-[#0f1924]/20 italic font-bold border-2 border-dashed border-gray-100 rounded-3xl">
-                  No line items extracted for this receipt.
+                <div className="rounded-3xl border-2 border-dashed border-gray-100 py-16 text-center font-bold italic text-[#0f1924]/20">
+                  לא נמצאו שורות לפריט זה.
                 </div>
               )}
             </div>
 
-            <div className="p-8 bg-gray-50 border-t border-[#c7ae75]/10 flex justify-between items-center">
-              <div className="text-[#0f1924] font-black italic">
-                <span className="text-[10px] uppercase block text-gray-400">
-                  Total Price
-                </span>
-                <span className="text-3xl">
-                  ${selectedReceipt.total_price || 0}
-                </span>
+            <div className="flex items-center justify-between border-t border-[#c7ae75]/10 bg-gray-50 p-8">
+              <div className="font-black text-[#0f1924]">
+                <span className="block text-[10px] uppercase text-gray-400">סך הכול</span>
+                <span className="text-3xl">₪{selectedReceipt.total_price || 0}</span>
               </div>
               <button
                 onClick={() => setSelectedReceipt(null)}
-                className="bg-[#0f1924] text-[#c7ae75] px-10 py-4 rounded-[20px] font-black uppercase tracking-widest hover:bg-[#c7ae75] hover:text-[#0f1924] transition-all shadow-lg"
+                className="rounded-[20px] bg-[#0f1924] px-10 py-4 font-black uppercase tracking-[0.3em] text-[#c7ae75] shadow-lg transition hover:bg-[#c7ae75] hover:text-[#0f1924]"
               >
-                Close Details
+                סגור
               </button>
             </div>
           </div>

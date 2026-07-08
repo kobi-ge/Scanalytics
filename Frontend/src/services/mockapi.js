@@ -34,7 +34,7 @@ export const mockApi = {
     return { ...safeUser, totalExpenses: 0 };
   },
 
-  uploadReceiptImage: async (file) => {
+  uploadReceiptImage: async () => {
     await delay(1500); // מדמה זמן פענוח תמונה
     // מחזיר דאטה מפוענח (mock) עם אפשרות לעריכה
     return {

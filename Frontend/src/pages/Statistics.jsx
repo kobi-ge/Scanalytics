@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
 import { useStore } from "../store/useStore";
-import { insightsApi } from "../services/api";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -21,9 +19,9 @@ export default function Statistics() {
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="bg-navy p-8 rounded-[32px] border-b-4 border-gold shadow-2xl">
-        <h2 className="text-3xl font-black text-gold">Insights & Analytics</h2>
+        <h2 className="text-3xl font-black text-gold">סטטיסטיקות ותובנות</h2>
         <p className="text-[#c7ae75] text-xs mt-1 uppercase tracking-widest opacity-80">
-          נתונים בזמן אמת משרת ה-Insights
+          נתונים בזמן אמת מנתוני הקבלות שלך
         </p>
       </header>
 

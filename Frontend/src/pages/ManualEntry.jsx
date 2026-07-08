@@ -6,13 +6,13 @@ import { Trash2, PlusCircle, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 const CATEGORIES = [
-  "General",
-  "Fashion & Apparel",
-  "Home & Furniture",
-  "Health & Beauty",
-  "Leisure & Hobbies",
-  "Food & Groceries",
-  "Electronics & Gadgets",
+  { value: "General", label: "כללי" },
+  { value: "Fashion & Apparel", label: "אופנה ובגדים" },
+  { value: "Home & Furniture", label: "בית ורהיטים" },
+  { value: "Health & Beauty", label: "בריאות ויופי" },
+  { value: "Leisure & Hobbies", label: "בילוי ותחביבים" },
+  { value: "Food & Groceries", label: "מזון ומצרכים" },
+  { value: "Electronics & Gadgets", label: "אלקטרוניקה" },
 ];
 
 export default function ManualEntry() {
@@ -24,7 +24,7 @@ export default function ManualEntry() {
     store: "",
     purchase_date: new Date().toISOString().split("T")[0],
     total_price: 0,
-    payment_method: "Visa",
+    payment_method: "כרטיס אשראי",
     receipt_id: `manual_${Date.now()}`,
     items: [{ name: "", quantity: 1, price: 0, category: "General" }],
   });
@@ -124,8 +124,8 @@ export default function ManualEntry() {
               }
               className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-gold focus:bg-white rounded-2xl outline-none transition-all font-bold text-navy appearance-none"
             >
-              <option value="Visa">Visa</option>
-              <option value="Cash">מזומן</option>
+              <option value="כרטיס אשראי">כרטיס אשראי</option>
+              <option value="מזומן">מזומן</option>
             </select>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function ManualEntry() {
                   ...receipt,
                   items: [
                     ...receipt.items,
-                    { name: "", quantity: 1, price: 0, category: "אחר" },
+                    { name: "", quantity: 1, price: 0, category: "General" },
                   ],
                 })
               }
@@ -214,8 +214,8 @@ export default function ManualEntry() {
                     }
                   >
                     {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                      <option key={c.value} value={c.value}>
+                        {c.label}
                       </option>
                     ))}
                   </select>

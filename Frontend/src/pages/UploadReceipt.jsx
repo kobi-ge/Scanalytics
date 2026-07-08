@@ -30,7 +30,7 @@ export default function UploadReceipt() {
             [20000, 45000, 90000].forEach(delay =>
                 setTimeout(() => useStore.getState().fetchInsightsData(), delay)
             );
-        } catch (error) {
+        } catch {
             alert("שגיאה בשליחה לשרת ה-Ingestion");
         } finally {
             setLoading(false);
@@ -38,34 +38,35 @@ export default function UploadReceipt() {
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-10 bg-white rounded-[32px] shadow-2xl border border-gold/10 overflow-hidden">
-            <div className="bg-navy p-10 flex flex-col items-center border-b border-gold/20">
-                <div className="bg-gold p-4 rounded-full text-navy shadow-lg shadow-gold/20 mb-4">
+        <div className="mx-auto max-w-2xl rounded-[32px] border border-[#c7ae75]/20 bg-white shadow-2xl overflow-hidden">
+            <div className="flex flex-col items-center border-b border-[#c7ae75]/20 bg-[#0f1924] p-8 text-center">
+                <div className="mb-4 rounded-full bg-[#c7ae75] p-4 text-[#0f1924] shadow-lg">
                     <Camera size={40} />
                 </div>
-                <h2 className="text-2xl font-black text-gold">סריקת קבלה חדשה</h2>
-
+                <h2 className="text-2xl font-black text-[#c7ae75]">סריקת קבלה חדשה</h2>
+                <p className="mt-2 text-sm text-[#d8c79b]">העלאה של תמונת קבלה והמרתה למידע מסודר.</p>
             </div>
 
-            <div className="p-10 space-y-8 text-center">
-                <label className="block border-2 border-dashed border-gold/20 rounded-2xl p-12 cursor-pointer hover:bg-gold/5 transition-all">
+            <div className="space-y-8 p-8 text-center">
+                <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-[#c7ae75]/30 p-10 transition-all hover:bg-[#f8fafc]">
                     <input
                         type="file"
                         className="hidden"
                         onChange={(e) => setFile(e.target.files[0])}
                     />
-                    <Upload className="mx-auto text-gold/30 mb-4" size={48} />
-                    <span className="text-navy font-bold text-lg block">
+                    <Upload className="mx-auto mb-4 text-[#967f4a]" size={48} />
+                    <span className="block text-lg font-bold text-[#0f1924]">
                         {file ? file.name : "בחר קובץ לסריקה"}
                     </span>
-                    <span className="text-gray-400 text-xs mt-2 block italic">
+                    <span className="mt-2 block text-xs italic text-gray-400">
+                        ניתן להעלות JPG, PNG או PDF.
                     </span>
                 </label>
 
                 <button
                     onClick={handleUpload}
                     disabled={loading || !file}
-                    className="w-full bg-navy cursor-pointer text-gold py-5 rounded-2xl font-black text-xl hover:bg-gold hover:text-navy transition-all shadow-xl disabled:opacity-50"
+                    className="w-full rounded-2xl bg-[#0f1924] py-5 text-xl font-black text-[#c7ae75] shadow-xl transition-all hover:bg-[#c7ae75] hover:text-[#0f1924] disabled:opacity-50"
                 >
                     {loading ? "מעבד ושולח..." : "שלח לעיבוד נתונים"}
                 </button>

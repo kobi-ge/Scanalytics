@@ -8,8 +8,7 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import UploadReceipt from "./pages/UploadReceipt";
-import ManualEntry from "./pages/ManualEntry";
+import Receipts from "./pages/Receipts";
 import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 
@@ -30,7 +29,7 @@ export default function App() {
           const response = await api.get("/backend/users/me");
           setUser(response.data);
           useStore.getState().fetchInsightsData();
-        } catch (err) {
+        } catch {
           logout();
         }
       }
@@ -85,10 +84,18 @@ export default function App() {
                 }
               />
               <Route
+                path="/receipts"
+                element={
+                  <PrivateRoute>
+                    <Receipts />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/upload"
                 element={
                   <PrivateRoute>
-                    <UploadReceipt />
+                    <Navigate to="/receipts" replace />
                   </PrivateRoute>
                 }
               />
@@ -96,7 +103,7 @@ export default function App() {
                 path="/manual"
                 element={
                   <PrivateRoute>
-                    <ManualEntry />
+                    <Navigate to="/receipts" replace />
                   </PrivateRoute>
                 }
               />
