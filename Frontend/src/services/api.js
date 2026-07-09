@@ -30,4 +30,14 @@ export const ingestionApi = createApiClient();
 export const insightsApi = createApiClient();
 export const apiClient = createApiClient();
 
+export const getReceiptCount = () => insightsApi.get("/insights/receipts/count");
+export const getReceiptsPage = (params) => insightsApi.get("/insights/receipts", { params });
+export const getReceiptDetail = (id) => insightsApi.get(`/insights/receipts/${encodeURIComponent(id)}`);
+export const getReceiptThumbnail = async (fileId) => {
+  const res = await insightsApi.get(`/insights/receipts/files/${fileId}/thumbnail`, {
+    responseType: "blob",
+  });
+  return res.data;
+};
+
 export default authApi;

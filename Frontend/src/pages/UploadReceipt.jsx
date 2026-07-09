@@ -25,11 +25,10 @@ export default function UploadReceipt() {
             });
             alert("הקבלה נשלחה בהצלחה: " + response.data.message);
             setProcessing(true);
+            useStore.getState().incrementReceiptCount();
+            useStore.getState().resetReceiptList();
             navigate("/");
-            // OCR יכול לקחת זמן — ננסה 3 פעמים
-            [20000, 45000, 90000].forEach(delay =>
-                setTimeout(() => useStore.getState().fetchInsightsData(), delay)
-            );
+            setTimeout(() => useStore.getState().fetchReceiptCount(), 30000);
         } catch {
             alert("שגיאה בשליחה לשרת ה-Ingestion");
         } finally {

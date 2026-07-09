@@ -29,6 +29,7 @@ export default function App() {
           const response = await api.get("/backend/users/me");
           setUser(response.data);
           useStore.getState().fetchInsightsData();
+          useStore.getState().fetchReceiptCount();
         } catch {
           logout();
         }

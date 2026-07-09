@@ -59,12 +59,11 @@ export default function ManualEntry() {
     try {
       await ingestionApi.post('/ingestion/manual-entry', payload);
       setProcessing(true);
+      useStore.getState().incrementReceiptCount();
+      useStore.getState().resetReceiptList();
       alert("הנתונים נשלחו בהצלחה!");
       navigate("/");
-      // נסיון ראשון אחרי 20 שניות, שני אחרי 45, שלישי אחרי 90
-      [20000, 45000, 90000].forEach(delay =>
-        setTimeout(() => useStore.getState().fetchInsightsData(), delay)
-      );
+      setTimeout(() => useStore.getState().fetchReceiptCount(), 30000);
     } catch (err) {
       console.error(err);
       alert("שגיאה בשליחה לשרת הדאטה");

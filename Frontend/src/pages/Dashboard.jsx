@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store/useStore";
-import { insightsApi } from "../services/api";
+import { insightsApi, getReceiptDetail } from "../services/api";
+import { useReceiptCount } from "../hooks/useReceiptCount";
+import { useReceiptList } from "../hooks/useReceiptList";
+import ReceiptListCard from "../components/ReceiptListCard";
 import { Link } from "react-router";
 import {
-  Camera,
-  PenLine,
-  BarChart3,
-  Receipt,
   Search,
   X,
   ChevronRight,
@@ -27,8 +26,19 @@ const CATEGORIES = [
 ];
 
 export default function Dashboard() {
-  const { user, isFetchingInsights } = useStore();
+  const { user } = useStore();
   const stats = useStore((state) => state.stats);
+  const { receiptCount, receiptCountError } = useReceiptCount();
+  const {
+    items: receiptItems,
+    hasMore,
+    isLoadingInitial,
+    isLoadingMore,
+    error: listError,
+    loadMore,
+  } = useReceiptList();
+
+  const sentinelRef = useRef(null);
   const [searchParams, setSearchParams] = useState({
     category: "",
     store: "",
@@ -36,31 +46,40 @@ export default function Dashboard() {
   });
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
-  const [images, setImages] = useState([]);
-  const [loadingImages, setLoadingImages] = useState(false);
-  const [imageError, setImageError] = useState(null);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
-    const fetchImages = async () => {
-      if (!user) return;
-      setLoadingImages(true);
-      setImageError(null);
-      try {
-        const res = await insightsApi.get("/insights/receipts/images");
-        setImages(res.data?.images || []);
-      } catch (err) {
-        if (err.response?.status === 404) {
-          setImages([]);
-        } else {
-          setImageError("לא ניתן לטעון את הקבלות כרגע");
-        }
-      } finally {
-        setLoadingImages(false);
-      }
-    };
-    fetchImages();
-  }, [user, isFetchingInsights]);
+    const node = sentinelRef.current;
+    if (!node || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore, receiptItems.length]);
+
+  const openReceiptDetail = async (receipt) => {
+    if (receipt.items?.length) {
+      setSelectedReceipt(receipt);
+      return;
+    }
+    setDetailLoading(true);
+    setSelectedReceipt({ ...receipt, items: [] });
+    try {
+      const res = await getReceiptDetail(receipt.id);
+      setSelectedReceipt(res.data);
+    } catch {
+      alert("לא ניתן לטעון פרטי קבלה");
+      setSelectedReceipt(null);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -92,6 +111,12 @@ export default function Dashboard() {
   };
 
   const totalSpending = stats?.benchmark?.user_total_spending?.toLocaleString() || 0;
+  const countLabel =
+    receiptCountError != null
+      ? "—"
+      : receiptCount == null
+        ? "..."
+        : receiptCount;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 md:px-0" dir="rtl">
@@ -148,7 +173,7 @@ export default function Dashboard() {
         <div className="flex flex-col items-center rounded-3xl border border-[#c7ae75]/30 bg-[#0f1924] p-6 text-[#c7ae75] shadow-lg shadow-[#0f1924]/20">
           <span className="mb-2 text-2xl font-black text-[#c7ae75]">#</span>
           <span className="text-xs font-black uppercase tracking-[0.3em] text-[#c7ae75]">
-            {images.length} קבלות
+            {countLabel} קבלות
           </span>
         </div>
       </div>
@@ -240,18 +265,21 @@ export default function Dashboard() {
                   לא נמצאו קבלות התואמות את החיפוש.
                 </p>
               ) : (
-                searchResults.map((receipt, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-4 rounded-[24px] border border-[#c7ae75]/10 bg-white p-6 transition hover:shadow-md">
+                searchResults.map((receipt) => (
+                  <div
+                    key={receipt.id}
+                    className="flex items-center justify-between gap-4 rounded-[24px] border border-[#c7ae75]/10 bg-white p-6 transition hover:shadow-md"
+                  >
                     <div>
                       <p className="text-xl font-black text-[#0f1924]">{receipt.store}</p>
                       <p className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400">
-                        {receipt.purchase_date} • {receipt.items?.length || 0} פריטים
+                        {receipt.purchase_date} • {receipt.item_count ?? 0} פריטים
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2 text-right">
                       <p className="text-2xl font-black italic text-[#0f1924]">₪{receipt.total_price}</p>
                       <button
-                        onClick={() => setSelectedReceipt(receipt)}
+                        onClick={() => openReceiptDetail(receipt)}
                         className="flex items-center gap-1 text-[10px] font-black uppercase text-[#c7ae75] underline transition hover:tracking-widest"
                       >
                         לפרטים <ChevronRight size={14} />
@@ -270,44 +298,39 @@ export default function Dashboard() {
           קבלות אחרונות
         </h2>
 
-        {loadingImages || isFetchingInsights ? (
+        {isLoadingInitial ? (
           <div className="flex flex-col items-center gap-3 rounded-[32px] border border-dashed border-[#c7ae75]/20 bg-gray-50 p-20 text-center text-[#0f1924]/30">
             <Loader2 className="animate-spin" size={32} />
-            <span className="font-black italic">טוען נתונים מאובטחים...</span>
+            <span className="font-black italic">טוען רשימת קבלות...</span>
           </div>
-        ) : imageError ? (
+        ) : listError ? (
           <div className="rounded-3xl border border-red-100 bg-red-50 p-10 text-center font-bold text-red-400">
-            {imageError}
+            {listError}
           </div>
-        ) : images.length === 0 ? (
+        ) : receiptItems.length === 0 ? (
           <div className="rounded-[40px] border-2 border-dashed border-[#c7ae75]/20 bg-gray-50 p-20 text-center">
             <p className="text-lg font-bold italic text-[#0f1924]/40">לא נמצאו קבלות במאגר שלך.</p>
             <p className="mt-2 text-sm font-medium text-[#0f1924]/30">הוסף את הקבלה הראשונה ותראה את כל הנתונים כאן.</p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {images.map((img, idx) => (
-              <div
-                key={idx}
-                onClick={() => setSelectedReceipt(img)}
-                className="group cursor-pointer overflow-hidden rounded-[24px] border border-[#c7ae75]/10 bg-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl"
-              >
-                <div className="flex h-44 items-center justify-center overflow-hidden bg-gray-50">
-                  <img
-                    src={`data:${img.content_type};base64,${img.data_base64}`}
-                    alt={img.filename}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                </div>
-                <div className="flex items-center justify-between bg-[#0f1924] p-4 text-[#c7ae75]">
-                  <span className="truncate text-xs font-black uppercase tracking-[0.2em]">
-                    {img.filename || `קבלה #${idx + 1}`}
-                  </span>
-                  <Receipt size={16} className="opacity-50" />
-                </div>
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {receiptItems.map((receipt) => (
+                <ReceiptListCard
+                  key={receipt.id}
+                  receipt={receipt}
+                  onClick={openReceiptDetail}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div ref={sentinelRef} className="flex justify-center py-6">
+                {isLoadingMore && (
+                  <Loader2 className="animate-spin text-[#c7ae75]" size={28} />
+                )}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 
@@ -321,7 +344,7 @@ export default function Dashboard() {
                   פרטי קבלה
                 </h3>
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
-                  {selectedReceipt.store || selectedReceipt.filename}
+                  {selectedReceipt.store || selectedReceipt.id}
                 </p>
               </div>
               <button
@@ -333,7 +356,11 @@ export default function Dashboard() {
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto p-8">
-              {selectedReceipt.items && selectedReceipt.items.length > 0 ? (
+              {detailLoading ? (
+                <div className="flex justify-center py-16">
+                  <Loader2 className="animate-spin text-[#c7ae75]" size={32} />
+                </div>
+              ) : selectedReceipt.items && selectedReceipt.items.length > 0 ? (
                 <table className="w-full text-right">
                   <thead>
                     <tr className="border-b border-[#c7ae75]/10 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">

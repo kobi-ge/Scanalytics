@@ -1,9 +1,12 @@
 import { create } from 'zustand';
-import { insightsApi } from '../services/api';
+import { insightsApi, getReceiptCount } from '../services/api';
 
 export const useStore = create((set, get) => ({
   user: null,
   receipts: [],
+  receiptCount: null,
+  receiptCountError: null,
+  receiptListResetCallback: null,
   stats: {
     categories: [],
     trends: [],
@@ -15,24 +18,49 @@ export const useStore = create((set, get) => ({
   isProcessing: false,
   setProcessing: (val) => set({ isProcessing: val }),
   setUser: (userData) => {
-    // שמירת ה-ID גם ב-localStorage עבור ה-Headers של הפייתון
     if (userData?._id) localStorage.setItem('userId', userData._id);
     set({ user: userData });
   },
   isFetchingInsights: false,
   logout: () => {
     localStorage.clear();
-    set({ user: null, receipts: [], stats: { categories: [], trends: [], topStores: [], paymentMethods: [], spendingByMonthStore: [], benchmark: null } });
+    set({
+      user: null,
+      receipts: [],
+      receiptCount: null,
+      receiptCountError: null,
+      receiptListResetCallback: null,
+      stats: { categories: [], trends: [], topStores: [], paymentMethods: [], spendingByMonthStore: [], benchmark: null }
+    });
   },
   setReceipts: (receipts) => set({ receipts }),
   setStats: (newStats) => set((state) => ({ stats: { ...state.stats, ...newStats } })),
+  registerReceiptListReset: (fn) => set({ receiptListResetCallback: fn }),
+  resetReceiptList: () => {
+    const fn = get().receiptListResetCallback;
+    if (fn) fn();
+  },
+  fetchReceiptCount: async () => {
+    const { user } = get();
+    if (!user) return;
+    try {
+      const res = await getReceiptCount();
+      set({ receiptCount: res.data.count, receiptCountError: null });
+    } catch (err) {
+      console.error("Failed to fetch receipt count", err);
+      set({ receiptCountError: "לא ניתן לטעון את מספר הקבלות" });
+    }
+  },
+  incrementReceiptCount: () => set((state) => ({
+    receiptCount: state.receiptCount == null ? 1 : state.receiptCount + 1,
+  })),
+  setReceiptCount: (n) => set({ receiptCount: n }),
   fetchInsightsData: async () => {
     const { user } = get();
     if (!user) return;
     set({ isFetchingInsights: true });
     try {
-      const [recRes, benchRes, catRes, trendRes, storeRes, payRes, spendRes] = await Promise.all([
-        insightsApi.get('/insights/receipts/recent'),
+      const [benchRes, catRes, trendRes, storeRes, payRes, spendRes] = await Promise.all([
         insightsApi.get('/insights/stats/user-benchmark'),
         insightsApi.get('/insights/stats/category-distribution'),
         insightsApi.get('/insights/stats/monthly-trends'),
@@ -40,8 +68,7 @@ export const useStore = create((set, get) => ({
         insightsApi.get('/insights/stats/payment-methods'),
         insightsApi.get('/insights/stats/spending-by-month-and-store')
       ]);
-      set({ 
-        receipts: recRes.data.items || [],
+      set({
         stats: {
           categories: catRes.data,
           trends: trendRes.data,

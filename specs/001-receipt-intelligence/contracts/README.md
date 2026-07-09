@@ -1,17 +1,21 @@
-# UI Contract Notes
+# API Contracts: Home Screen Pagination
 
-No new backend API contract is required for this feature.
+New endpoints for decoupled count, cursor-paginated slim list, on-demand detail, and lazy thumbnails.
 
-## Existing frontend routes
-- `/` → Home page
-- `/statistics` → Statistics page
-- `/receipts` → new combined Receipts experience
+| Contract | Endpoint | Purpose |
+|----------|----------|---------|
+| [receipts-count.md](receipts-count.md) | `GET /receipts/count` | Independent total count for banner |
+| [receipts-list.md](receipts-list.md) | `GET /receipts` | Cursor-paginated slim list |
+| [receipt-detail.md](receipt-detail.md) | `GET /receipts/{receipt_id}` | Full detail with `items[]` |
+| [receipt-thumbnail.md](receipt-thumbnail.md) | `GET /receipts/files/{file_id}/thumbnail` | Lazy image bytes |
 
-## Existing backend integrations reused
-- `GET /insights/receipts/images`
-- `GET /insights/receipts/search`
-- `POST /ingestion/upload-receipt`
-- `POST /ingestion/manual-entry`
+All endpoints are served by **InsightsDashboard** and proxied through the API Gateway at `/api/insights/*`.
 
-## Routing behavior
-- Existing `/upload` and `/manual` routes should redirect or route into the new combined Receipts experience to preserve compatibility.
+Auth: `X-User-Id` header (existing pattern).
+
+## Deprecated (home screen)
+
+- `GET /receipts/recent` — full docs, limit 20
+- `GET /receipts/images` — base64 images + items, limit 5
+
+Removed from frontend in Phase 3; kept for rollback until follow-up release.

@@ -13,7 +13,10 @@ from app.schemas import (
     PaymentMethodStats,
     SearchResponse,
     SpendingByMonthStore,
-    UserBenchmarkResponse
+    UserBenchmarkResponse,
+    ReceiptCountResponse,
+    ReceiptListResponse,
+    ReceiptDetail,
 )
 
 router = APIRouter()
@@ -77,7 +80,50 @@ async def user_benchmark(
 ):
     return await es_service.get_user_benchmark(user_id)
 
-@router.get("/receipts/recent")
+
+@router.get("/receipts/count", response_model=ReceiptCountResponse)
+async def get_receipt_count(user_id: str = Depends(get_user_id)):
+    """Independent total receipt count for the authenticated user."""
+    count = await mongo_service.count_receipts(user_id)
+    return ReceiptCountResponse(count=count)
+
+
+@router.get("/receipts", response_model=ReceiptListResponse)
+async def list_receipts(
+    user_id: str = Depends(get_user_id),
+    limit: int = Query(12, ge=1, le=50),
+    cursor: Optional[str] = Query(None),
+):
+    """Cursor-paginated slim receipt list (no items[], no images)."""
+    items, next_cursor, has_more = await mongo_service.list_receipts(
+        user_id=user_id,
+        limit=limit,
+        cursor=cursor,
+    )
+    return ReceiptListResponse(
+        items=items,
+        next_cursor=next_cursor,
+        has_more=has_more,
+    )
+
+
+@router.get("/receipts/files/{file_id}/thumbnail")
+async def get_receipt_thumbnail(
+    file_id: str,
+    user_id: str = Depends(get_user_id),
+):
+    """Lazy-load receipt image as raw binary stream from GridFS."""
+    thumb = await mongo_service.get_thumbnail_stream(user_id, file_id)
+    if not thumb:
+        raise HTTPException(status_code=404, detail="Thumbnail not found")
+    return StreamingResponse(
+        BytesIO(thumb["data"]),
+        media_type=thumb["content_type"],
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
+
+
+@router.get("/receipts/recent", deprecated=True)
 async def get_recent_receipts(
     user_id: str = Depends(get_user_id),
 ):
@@ -88,7 +134,8 @@ async def get_recent_receipts(
         r["_id"] = str(r["_id"])
     return {"items": receipts}
 
-@router.get("/receipts/images")
+
+@router.get("/receipts/images", deprecated=True)
 async def get_receipt_images(
     user_id: str = Depends(get_user_id),
 ):
@@ -172,7 +219,7 @@ async def search_receipts(
     if search_type == "data":
         return {"items": receipts}
 
-    # Physical Receipt Mode: find first with file_id
+    # Physical Receipt Mode: summaries include file_id when available
     receipt_with_file = next((r for r in receipts if r.get("file_id")), None)
     
     if not receipt_with_file:
@@ -196,3 +243,15 @@ async def search_receipts(
         media_type=file_data["content_type"],
         headers={"Content-Disposition": f"inline; filename={file_data['filename']}"}
     )
+
+
+@router.get("/receipts/{receipt_id}", response_model=ReceiptDetail)
+async def get_receipt_detail(
+    receipt_id: str,
+    user_id: str = Depends(get_user_id),
+):
+    """Full receipt detail including line items."""
+    detail = await mongo_service.get_receipt_detail(user_id, receipt_id)
+    if not detail:
+        raise HTTPException(status_code=404, detail="Receipt not found")
+    return ReceiptDetail(**detail)

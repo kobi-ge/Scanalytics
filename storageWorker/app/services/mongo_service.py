@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from app.logger.logger import log_to_elastic
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -10,6 +12,8 @@ class MongoService:
         try:
             # Use doc_id as the _id to ensure idempotency
             data["_id"] = doc_id
+            data["created_at"] = datetime.now(timezone.utc)
+            data["item_count"] = len(data.get("items") or [])
             await self.db.receipts.replace_one(
                 {"_id": doc_id},
                 data,
